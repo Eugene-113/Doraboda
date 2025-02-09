@@ -2,20 +2,21 @@ package com.univ.doraboda
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.databinding.DataBindingUtil
+import com.univ.doraboda.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         val soundFragment = SoundFragment()
         val calendarFragment = CalendarFragment()
         val dataFragment = DataFragment()
 
-        val bottomNavigationView: BottomNavigationView = findViewById(R.id.homeBottomNavigation)
-
-        bottomNavigationView.setOnItemSelectedListener {item ->
+        binding.homeBottomNavigation.setOnItemSelectedListener {item ->
             val fragment = when (item.itemId) {
                 R.id.soundItem -> {
                     soundFragment
@@ -31,6 +32,6 @@ class MainActivity : AppCompatActivity() {
                 .commit()
             true
         }
-        bottomNavigationView.selectedItemId = R.id.calendarItem
+        binding.homeBottomNavigation.selectedItemId = R.id.calendarItem
     }
 }
