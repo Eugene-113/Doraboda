@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import com.univ.doraboda.databinding.FragmentCalendarBinding
+import java.util.Calendar
 
 class CalendarFragment : Fragment() {
     override fun onCreateView(
@@ -18,6 +19,7 @@ class CalendarFragment : Fragment() {
         binding.calendarSettingsImageView.setOnClickListener {
             startActivity(intent)
         }
+        val list = CalendarUtil().getDays(Calendar.getInstance())
         return binding.root
     }
 
