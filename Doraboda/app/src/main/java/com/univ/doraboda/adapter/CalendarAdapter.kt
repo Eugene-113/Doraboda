@@ -1,14 +1,16 @@
-package com.univ.doraboda
+package com.univ.doraboda.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.univ.doraboda.CalendarItem
 import com.univ.doraboda.databinding.ItemCalendarBinding
 
-class CalendarAdapter : ListAdapter<CalendarItem, CalendarAdapter.CalendarViewHolder>(CalendarDiffCallback) {
+class CalendarAdapter : ListAdapter<CalendarItem, CalendarAdapter.CalendarViewHolder>(
+    CalendarDiffCallback
+) {
 
     object CalendarDiffCallback : DiffUtil.ItemCallback<CalendarItem>(){
         override fun areItemsTheSame(oldItem: CalendarItem, newItem: CalendarItem): Boolean {

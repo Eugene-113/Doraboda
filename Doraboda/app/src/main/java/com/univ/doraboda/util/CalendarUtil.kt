@@ -1,5 +1,7 @@
-package com.univ.doraboda
+package com.univ.doraboda.util
 
+import com.univ.doraboda.CalendarItem
+import com.univ.doraboda.DayItem
 import java.util.Calendar
 
 class CalendarUtil {
