@@ -8,8 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import com.univ.doraboda.util.CalendarUtil
 import com.univ.doraboda.R
+import com.univ.doraboda.adapter.CalendarAdapter
 import com.univ.doraboda.databinding.FragmentCalendarBinding
 import java.util.Calendar
 
@@ -25,6 +28,16 @@ class CalendarFragment : Fragment() {
             startActivity(intent)
         }
         val list = CalendarUtil().getDays(Calendar.getInstance())
+        val manager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        val calendarAdapter = CalendarAdapter()
+        binding.calendarRecyclerView.apply {
+            layoutManager = manager
+            adapter = calendarAdapter
+            scrollToPosition(1)
+        }
+        calendarAdapter.submitList(list)
+        val snap = PagerSnapHelper()
+        snap.attachToRecyclerView(binding.calendarRecyclerView)
         return binding.root
     }
 
