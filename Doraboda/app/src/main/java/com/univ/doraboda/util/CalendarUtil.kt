@@ -7,7 +7,7 @@ import java.util.Calendar
 class CalendarUtil {
     fun getDays(cal: Calendar): ArrayList<CalendarItem>{
         val calendarList = ArrayList<CalendarItem>()
-        for(i in -1..1){
+        for(i in -50..50){
             val calendar = Calendar.getInstance()
             calendar.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + i, 1, 0, 0, 0)
             val dayList = ArrayList<DayItem>()
