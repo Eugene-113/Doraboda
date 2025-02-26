@@ -9,11 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.univ.doraboda.CalendarItem
 import com.univ.doraboda.DayItem
 import com.univ.doraboda.databinding.ItemCalendarBinding
+import com.univ.doraboda.view.CalendarFragment
+import timber.log.Timber
 
-class CalendarAdapter : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
+class CalendarAdapter(val fragment: CalendarFragment) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
     CalendarDiffCallback
 ) {
-
     object CalendarDiffCallback : DiffUtil.ItemCallback<CalendarItem>(){
         override fun areItemsTheSame(oldItem: CalendarItem, newItem: CalendarItem): Boolean {
             return oldItem.year == newItem.year && oldItem.month == newItem.month
@@ -40,6 +41,7 @@ class CalendarAdapter : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
-        holder.bind(getItem(position).days)
+        val item = getItem(position)
+        holder.bind(item.days)
     }
 }

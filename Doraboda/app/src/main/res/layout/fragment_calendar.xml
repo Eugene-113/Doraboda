@@ -16,6 +16,7 @@
             app:layout_constraintTop_toTopOf="parent"
             >
             <TextView
+                android:id="@+id/dateTextView"
                 android:text="2025년 1월 27일"
                 android:textSize="20sp"
                 android:layout_margin="5dp"
