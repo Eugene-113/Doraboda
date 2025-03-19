@@ -1,5 +1,6 @@
 package com.univ.doraboda.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
@@ -12,7 +13,7 @@ import com.univ.doraboda.databinding.ItemCalendarBinding
 import com.univ.doraboda.view.CalendarFragment
 import timber.log.Timber
 
-class CalendarAdapter(val fragment: CalendarFragment) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
+class CalendarAdapter(val context: Context) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
     CalendarDiffCallback
 ) {
     object CalendarDiffCallback : DiffUtil.ItemCallback<CalendarItem>(){
@@ -24,10 +25,10 @@ class CalendarAdapter(val fragment: CalendarFragment) : ListAdapter<CalendarItem
         }
     }
 
-    class DayViewHolder(val binding: ItemCalendarBinding) : RecyclerView.ViewHolder(binding.root){
-        fun bind(list: ArrayList<DayItem>){
-            val dayAdapter = DayAdapter()
-            dayAdapter.submitList(list)
+    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context) : RecyclerView.ViewHolder(binding.root){
+        fun bind(item: CalendarItem){
+            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/")
+            dayAdapter.submitList(item.days)
             binding.dayRecyclerView.apply {
                 layoutManager = GridLayoutManager(context, 7)
                 adapter = dayAdapter
@@ -37,11 +38,11 @@ class CalendarAdapter(val fragment: CalendarFragment) : ListAdapter<CalendarItem
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val binding = ItemCalendarBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return DayViewHolder(binding)
+        return DayViewHolder(binding, context)
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item.days)
+        holder.bind(item)
     }
 }

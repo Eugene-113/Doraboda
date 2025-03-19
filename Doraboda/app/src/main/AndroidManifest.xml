@@ -14,6 +14,12 @@
         android:theme="@style/Theme.Doraboda"
         tools:targetApi="34">
         <activity
+            android:name=".view.WriteModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ReadModeActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.SettingsActivity"
             android:exported="false" />
         <activity
