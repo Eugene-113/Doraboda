@@ -1,16 +1,17 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "com.univ.doraboda"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.univ.doraboda"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -39,6 +40,9 @@ android {
 }
 
 dependencies {
+    val room_version = "2.6.1"
+    val viewModels_version1 = "1.10.1"
+    val viewModels_version2 = "1.8.6"
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -50,4 +54,17 @@ dependencies {
     implementation ("com.jakewharton.timber:timber:5.0.1")
     implementation ("com.google.android.material:material:1.9.0")
 
+    //room
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+
+    //coroutine
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
+
+    //viewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+
+    //by viewModels
+    implementation ("androidx.activity:activity-ktx:${viewModels_version1}")
+    implementation ("androidx.fragment:fragment-ktx:${viewModels_version2}")
 }

@@ -1,6 +1,7 @@
 package com.univ.doraboda.view
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -45,7 +46,7 @@ class CalendarFragment : Fragment() {
         val calendarUtil = CalendarUtil()
         val list = calendarUtil.getDays(Calendar.getInstance())
         val manager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        val calendarAdapter = CalendarAdapter(this)
+        val calendarAdapter = CalendarAdapter(activity as Context)
         binding.calendarRecyclerView.apply {
             layoutManager = manager
             adapter = calendarAdapter
