@@ -11,9 +11,9 @@ interface MemoDao {
     @Query("SELECT * FROM memoTable WHERE id = :id")
     fun getMemo(id: String): Memo
 
-    @Update
-    fun updateMemo(memo: Memo)
+    @Query("UPDATE memoTable SET memo = :memo WHERE id = :id")
+    fun updateMemo(id: String, memo: String)
 
-    @Query("DELETE FROM memoTable WHERE id = :id")
-    fun deleteMemo(id: String)
+    @Delete
+    fun deleteMemo(memo: Memo)
 }

@@ -36,7 +36,6 @@ class CalendarFragment : Fragment() {
     ): View? {
         var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
         //지금 화면에 표시되는 년월을 다이얼로그에 전달할 목적으로 사용된다
-
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_calendar, container, false)
         val intent = Intent(activity, SettingsActivity::class.java)

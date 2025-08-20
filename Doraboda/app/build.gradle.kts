@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.activity:activity:1.10.1")
     val room_version = "2.6.1"
     val viewModels_version1 = "1.10.1"
     val viewModels_version2 = "1.8.6"
