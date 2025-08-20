@@ -13,8 +13,12 @@ class MemoRepository (application: Application) {
         dao.insertMemo(memo)
     }
 
-    fun delete(id: String){
-        dao.deleteMemo(id)
+    fun update(id: String, memo: String){
+        dao.updateMemo(id, memo)
+    }
+
+    fun delete(memo: Memo){
+        dao.deleteMemo(memo)
     }
 
     fun get(id: String): Memo{

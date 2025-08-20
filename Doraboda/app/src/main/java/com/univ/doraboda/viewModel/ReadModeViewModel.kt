@@ -8,14 +8,17 @@ import com.univ.doraboda.model.Memo
 import com.univ.doraboda.repository.MemoRepository
 import com.univ.doraboda.state.ReadModeState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
-    val _state = MutableStateFlow<ReadModeState>(ReadModeState.Loading)
-    val state: StateFlow<ReadModeState>
-        get() = _state
-    val dispatchers = Dispatchers.IO
+    private val eventChannel = Channel<ReadModeIntent>()
+    val state = eventChannel.receiveAsFlow().runningFold(ReadModeState.Loading, ::reduce)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, ReadModeState.Loading)
+    private val dispatchers = Dispatchers.IO
+    private var takenMemo: Memo? = null
 
     class Factory(private val repo: MemoRepository): ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -26,30 +29,65 @@ class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
         }
     }
 
+    private fun reduce(cur: ReadModeState, intent: ReadModeIntent): ReadModeState{ //상태 변화
+        return when(intent){
+            is ReadModeIntent.InsertMemo -> {
+                ReadModeState.SuccessToInsertMemo
+            }
+            is ReadModeIntent.TakeMemo -> {
+                if(takenMemo == null) ReadModeState.FailedToTakeMemo
+                else ReadModeState.SuccessToTakeMemo(takenMemo!!.memo)
+            }
+            is ReadModeIntent.UpdateMemo -> {
+                ReadModeState.SuccessToUpdateMemo
+            }
+            is ReadModeIntent.DeleteMemo -> {
+                ReadModeState.SuccessToDeleteMemo
+            }
+        }
+    }
 
-    fun handleIntent(intent: ReadModeIntent){
+    fun handleIntent(intent: ReadModeIntent){ //각종 비동기처리
+        viewModelScope.launch {
         when(intent){
-            is ReadModeIntent.InsertMemo -> insertMemo(intent.memo)
-            is ReadModeIntent.TakeMemo -> takeMemo(intent.id)
-            is ReadModeIntent.TakeEmotions -> takeEmotions()
+            is ReadModeIntent.InsertMemo -> {
+                insertMemo(intent.memo)
+            }
+            is ReadModeIntent.TakeMemo -> {
+                takeMemo(intent.id)
+            }
+            is ReadModeIntent.UpdateMemo -> {
+                updateMemo(intent.id, intent.memo)
+            }
+            is ReadModeIntent.DeleteMemo -> {
+                deleteMemo(intent.memo)
+            }
+        }
+        eventChannel.send(intent)
         }
     }
 
-    fun takeMemo(id: String){
-        viewModelScope.launch(dispatchers) {
-            val testState = repository.get(id)
-            if(testState == null) _state.value = ReadModeState.FailedToTakeMemo
-            else _state.value = ReadModeState.SuccessToTakeMemo(testState.memo)
+    private suspend fun takeMemo(id: String){
+        return withContext(dispatchers) {
+            takenMemo = repository.get(id)
         }
     }
 
-    fun insertMemo(memo: Memo){
-        viewModelScope.launch(dispatchers) {
+    private suspend fun insertMemo(memo: Memo){
+        return withContext(dispatchers) {
             repository.insert(memo)
-            _state.value = ReadModeState.SuccessToInsertMemo
         }
     }
 
-    fun takeEmotions(){
+    private suspend fun updateMemo(id: String, memo: String){
+        return withContext(dispatchers) {
+             repository.update(id, memo)
+         }
+    }
+
+    private suspend fun deleteMemo(memo: Memo){
+        return withContext(dispatchers) {
+            repository.delete(memo)
+        }
     }
 }
