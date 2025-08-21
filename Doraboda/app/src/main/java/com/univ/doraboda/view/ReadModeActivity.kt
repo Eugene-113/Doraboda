@@ -16,10 +16,12 @@ import com.univ.doraboda.state.ReadModeState
 import com.univ.doraboda.viewModel.ReadModeViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Calendar
+import java.util.Date
 
 class ReadModeActivity : AppCompatActivity() {
     lateinit var binding: ActivityReadModeBinding
-    lateinit var nonEditedDate: String
+    lateinit var nonEditedDate: Date
 
     val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -57,10 +59,15 @@ class ReadModeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val intent = intent
-        nonEditedDate = intent.getStringExtra("Date").toString()
-        val date = nonEditedDate!!.split("/")
+        val nonSlashedDate = intent.getStringExtra("Date").toString()
+        val dateArr = nonSlashedDate!!.split("/")
+        val dateCalendar = Calendar.getInstance()
+        dateCalendar.set(dateArr.get(0).toInt(), dateArr.get(1).toInt()-1, dateArr.get(2).toInt(), 0, 0, 0)
+        dateCalendar.set(Calendar.MILLISECOND, 0)
+        nonEditedDate = dateCalendar.time
+        Timber.d("ddddddd ${dateCalendar.timeInMillis}")
 
-        binding.readModeTextView1.text = "${date.get(0)}년 ${date.get(1)}월 ${date.get(2)}일"
+        binding.readModeTextView1.text = "${dateArr.get(0)}년 ${dateArr.get(1)}월 ${dateArr.get(2)}일"
 
         val repo = MemoRepository(application)
         viewModel = ViewModelProvider(this, ReadModeViewModel.Factory(repo)).get(ReadModeViewModel::class.java)

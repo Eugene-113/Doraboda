@@ -42,7 +42,19 @@ class CalendarFragment : Fragment() {
         binding.calendarSettingsImageView.setOnClickListener {
             startActivity(intent)
         }
+
         val calendarUtil = CalendarUtil()
+
+        /*
+        val application = requireActivity().application
+        lifecycleScope.launch(Dispatchers.IO){
+            val memoList = MemoRepository(application).getBetween(100, 200)
+            withContext(Dispatchers.Main){
+                val memoMap: Map<Date, Memo> = memoList.associateBy { it.ID }
+            }
+        }
+         */
+
         val list = calendarUtil.getDays(Calendar.getInstance())
         val manager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         val calendarAdapter = CalendarAdapter(activity as Context)

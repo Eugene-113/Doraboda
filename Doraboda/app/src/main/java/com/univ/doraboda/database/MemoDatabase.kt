@@ -4,8 +4,10 @@ import android.app.Application
 import androidx.room.*
 import com.univ.doraboda.dao.MemoDao
 import com.univ.doraboda.model.Memo
+import com.univ.doraboda.util.RoomConverter
 
 @Database(entities = [(Memo::class)], version = 1, exportSchema = false)
+@TypeConverters(RoomConverter::class)
 abstract class MemoDatabase : RoomDatabase() {
     abstract fun memoDao(): MemoDao
     companion object{

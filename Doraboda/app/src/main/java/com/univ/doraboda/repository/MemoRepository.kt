@@ -4,6 +4,8 @@ import android.app.Application
 import com.univ.doraboda.dao.MemoDao
 import com.univ.doraboda.database.MemoDatabase
 import com.univ.doraboda.model.Memo
+import timber.log.Timber
+import java.util.Date
 
 class MemoRepository (application: Application) {
     val db = MemoDatabase.getInstance(application)!!
@@ -13,7 +15,7 @@ class MemoRepository (application: Application) {
         dao.insertMemo(memo)
     }
 
-    fun update(id: String, memo: String){
+    fun update(id: Date, memo: String){
         dao.updateMemo(id, memo)
     }
 
@@ -21,7 +23,12 @@ class MemoRepository (application: Application) {
         dao.deleteMemo(memo)
     }
 
-    fun get(id: String): Memo{
+    fun get(id: Date): Memo{
+        Timber.d("hahahaha666")
         return dao.getMemo(id)
+    }
+
+    fun getBetween(date1: Long, date2: Long): List<Memo>{
+        return dao.getBetweenMemo(date1, date2)
     }
 }
