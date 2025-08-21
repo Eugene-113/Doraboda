@@ -8,10 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.univ.doraboda.CalendarItem
-import com.univ.doraboda.DayItem
 import com.univ.doraboda.databinding.ItemCalendarBinding
-import com.univ.doraboda.view.CalendarFragment
-import timber.log.Timber
 
 class CalendarAdapter(val context: Context) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
     CalendarDiffCallback

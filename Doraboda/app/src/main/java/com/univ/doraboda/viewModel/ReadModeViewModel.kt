@@ -12,6 +12,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
+import java.util.Date
 
 class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
     private val eventChannel = Channel<ReadModeIntent>()
@@ -67,8 +69,9 @@ class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
         }
     }
 
-    private suspend fun takeMemo(id: String){
+    private suspend fun takeMemo(id: Date){
         return withContext(dispatchers) {
+            Timber.d("hahahaha ${id}")
             takenMemo = repository.get(id)
         }
     }
@@ -79,7 +82,7 @@ class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
         }
     }
 
-    private suspend fun updateMemo(id: String, memo: String){
+    private suspend fun updateMemo(id: Date, memo: String){
         return withContext(dispatchers) {
              repository.update(id, memo)
          }
