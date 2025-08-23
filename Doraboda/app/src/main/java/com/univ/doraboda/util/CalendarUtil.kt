@@ -18,7 +18,7 @@ class CalendarUtil {
                 val dayItem = DayItem(j)
                 dayList.add(dayItem)
             }
-            calendarList.add(CalendarItem(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, dayList))
+            calendarList.add(CalendarItem(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1, dayList, mutableMapOf()))
         }
         return calendarList
     }

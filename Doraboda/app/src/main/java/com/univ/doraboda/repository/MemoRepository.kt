@@ -4,7 +4,6 @@ import android.app.Application
 import com.univ.doraboda.dao.MemoDao
 import com.univ.doraboda.database.MemoDatabase
 import com.univ.doraboda.model.Memo
-import timber.log.Timber
 import java.util.Date
 
 class MemoRepository (application: Application) {
@@ -24,7 +23,6 @@ class MemoRepository (application: Application) {
     }
 
     fun get(id: Date): Memo{
-        Timber.d("hahahaha666")
         return dao.getMemo(id)
     }
 

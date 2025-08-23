@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
@@ -52,6 +53,9 @@ class ReadModeActivity : AppCompatActivity() {
 
     lateinit var viewModel: ReadModeViewModel
     var isMemoExist = false
+    var nonSlashedDate: String? = null
+    var flag = true
+    var firstValue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,13 +63,12 @@ class ReadModeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val intent = intent
-        val nonSlashedDate = intent.getStringExtra("Date").toString()
+        nonSlashedDate = intent.getStringExtra("Date").toString()
         val dateArr = nonSlashedDate!!.split("/")
         val dateCalendar = Calendar.getInstance()
         dateCalendar.set(dateArr.get(0).toInt(), dateArr.get(1).toInt()-1, dateArr.get(2).toInt(), 0, 0, 0)
         dateCalendar.set(Calendar.MILLISECOND, 0)
         nonEditedDate = dateCalendar.time
-        Timber.d("ddddddd ${dateCalendar.timeInMillis}")
 
         binding.readModeTextView1.text = "${dateArr.get(0)}년 ${dateArr.get(1)}월 ${dateArr.get(2)}일"
 
@@ -83,6 +86,9 @@ class ReadModeActivity : AppCompatActivity() {
             startForResult.launch(writeModeIntent)
         }
 
+        val resIntent = Intent()
+        setResult(RESULT_OK, resIntent)
+
         lifecycleScope.launch{
             viewModel.state.collect{
                 when(it){
@@ -91,10 +97,18 @@ class ReadModeActivity : AppCompatActivity() {
                         //메모가 존재하지 않으면 '작성된 메모가 없습니다.', 존재하면 메모 그대로 출력
                         binding.readModeTextView4.text = it.memo
                         isMemoExist = true
+                        if(flag){
+                            firstValue = true
+                            flag = false
+                        }
                     }
                     is ReadModeState.FailedToTakeMemo -> {
                         binding.readModeTextView4.text = "작성된 메모가 없습니다."
                         isMemoExist = false
+                        if(flag){
+                            firstValue = false
+                            flag = false
+                        }
                     }
                     is ReadModeState.SuccessToInsertMemo -> {
                         isMemoExist = true }
@@ -102,6 +116,7 @@ class ReadModeActivity : AppCompatActivity() {
                     }
                     is ReadModeState.SuccessToDeleteMemo -> { isMemoExist = false }
                 }
+                resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstValue != isMemoExist}")
             }
         }
         viewModel.handleIntent(ReadModeIntent.TakeMemo(nonEditedDate))

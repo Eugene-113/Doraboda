@@ -12,7 +12,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.util.Date
 
 class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
@@ -71,7 +70,6 @@ class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
 
     private suspend fun takeMemo(id: Date){
         return withContext(dispatchers) {
-            Timber.d("hahahaha ${id}")
             takenMemo = repository.get(id)
         }
     }
