@@ -7,5 +7,6 @@ import java.util.Date
 @Entity(tableName = "memoTable")
 data class Memo (
     @PrimaryKey var ID: Date,
-    var memo: String,
+    var memo: String? = null,
+    var emotion: String? = null
 )

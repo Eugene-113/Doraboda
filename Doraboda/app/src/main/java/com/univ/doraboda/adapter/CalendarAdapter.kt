@@ -1,6 +1,7 @@
 package com.univ.doraboda.adapter
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -12,8 +13,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.univ.doraboda.CalendarItem
 import com.univ.doraboda.databinding.ItemCalendarBinding
+import timber.log.Timber
 
-class CalendarAdapter(val context: Context, val startForResult: ActivityResultLauncher<Intent>) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
+class CalendarAdapter(val context: Context, val startForResult: ActivityResultLauncher<Intent>, val activity: Activity) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
     CalendarDiffCallback
 ) {
     object CalendarDiffCallback : DiffUtil.ItemCallback<CalendarItem>(){
@@ -23,15 +25,15 @@ class CalendarAdapter(val context: Context, val startForResult: ActivityResultLa
 
         @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: CalendarItem, newItem: CalendarItem): Boolean {
-            return oldItem.memoListMap == newItem.memoListMap
+            return oldItem.memoListMap == newItem.memoListMap && oldItem.emotionListMap == newItem.emotionListMap
         }
     }
 
-    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context, val startForResult: ActivityResultLauncher<Intent>) : RecyclerView.ViewHolder(binding.root){
+    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context, val startForResult: ActivityResultLauncher<Intent>, val activity: Activity) : RecyclerView.ViewHolder(binding.root){
         fun bind(item: CalendarItem){
-            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/", startForResult, item.memoListMap)
+            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/", startForResult, item.memoListMap, item.emotionListMap, activity)
             binding.dayRecyclerView.apply {
-                layoutManager = GridLayoutManager(context, 7)
+                layoutManager = GridLayoutManager(activity, 7)
                 adapter = dayAdapter
             }
             dayAdapter.submitList(item.days)
@@ -40,7 +42,7 @@ class CalendarAdapter(val context: Context, val startForResult: ActivityResultLa
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val binding = ItemCalendarBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return DayViewHolder(binding, context, startForResult)
+        return DayViewHolder(binding, context, startForResult, activity)
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {

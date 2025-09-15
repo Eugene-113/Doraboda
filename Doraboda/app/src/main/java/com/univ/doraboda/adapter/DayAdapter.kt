@@ -1,5 +1,7 @@
 package com.univ.doraboda.adapter
 
+import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -9,11 +11,14 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.univ.doraboda.DayItem
+import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ItemDayBinding
 import com.univ.doraboda.view.ReadModeActivity
+import timber.log.Timber
 
-class DayAdapter(val context: Context, val yearAndMonth: String, val startForResult: ActivityResultLauncher<Intent>, val memoList: MutableMap<Int, Int>) : ListAdapter<DayItem, DayAdapter.DayViewHolder>(DayDiffCallback) {
+class DayAdapter(val context: Context, val yearAndMonth: String, val startForResult: ActivityResultLauncher<Intent>, val memoList: MutableMap<Int, Int>, val emotionList: MutableMap<Int, String>, val activity: Activity) : ListAdapter<DayItem, DayAdapter.DayViewHolder>(DayDiffCallback) {
     object DayDiffCallback : DiffUtil.ItemCallback<DayItem>(){
         override fun areItemsTheSame(oldItem: DayItem, newItem: DayItem): Boolean {
             return false
@@ -28,16 +33,28 @@ class DayAdapter(val context: Context, val yearAndMonth: String, val startForRes
         viewType: Int
     ): DayViewHolder {
         val binding = ItemDayBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return DayViewHolder(binding, context, yearAndMonth, startForResult, memoList)
+        return DayViewHolder(binding, context, yearAndMonth, startForResult, memoList, emotionList, activity)
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
         holder.bind(getItem(position).day)
     }
 
-    class DayViewHolder(val binding: ItemDayBinding, val context: Context, val yearAndMonth: String, val startForResult: ActivityResultLauncher<Intent>, val memoList: MutableMap<Int, Int>) : RecyclerView.ViewHolder(binding.root){
+    class DayViewHolder(val binding: ItemDayBinding, val context: Context, val yearAndMonth: String, val startForResult: ActivityResultLauncher<Intent>, val memoList: MutableMap<Int, Int>, val emotionList: MutableMap<Int, String>, val activity: Activity) : RecyclerView.ViewHolder(binding.root){
         fun bind(day: Int){
             if (memoList.get(day) == 1) binding.dayItemLayout2.setBackgroundColor(Color.YELLOW)
+            if (emotionList.get(day) != null){
+                val image = when(emotionList.get(day)){
+                    "normal" -> R.drawable.normal
+                    "sad" -> R.drawable.sad
+                    "joyful" -> R.drawable.joyful
+                    "angry" -> R.drawable.angry
+                    "confused" -> R.drawable.confused
+                    "happy" -> R.drawable.happy
+                    else -> R.drawable.icon_add
+                }
+                Glide.with(context).load(image).into(binding.dayItemImage)
+            }
             binding.dayItemText.text =
                 if(day != 0){
                     binding.dayItemLayout.setOnClickListener {
