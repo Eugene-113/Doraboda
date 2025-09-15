@@ -16,6 +16,7 @@ class WriteModeActivity : AppCompatActivity() {
         binding.writeModeEditText.text = Editable.Factory.getInstance().newEditable(intent.getStringExtra("ETMemo").toString())
         binding.writeModeDeleteImageView.setOnClickListener {
             val intent = Intent()
+            intent.putExtra("Mode", "memo")
             intent.putExtra("Btn", "delete")
             setResult(RESULT_OK, intent)
             finish()
@@ -23,6 +24,7 @@ class WriteModeActivity : AppCompatActivity() {
         binding.writeModeQuitImageView.setOnClickListener { finish() }
         binding.writeModeSaveImageView.setOnClickListener {
             val intent = Intent()
+            intent.putExtra("Mode", "memo")
             intent.putExtra("Btn", "save")
             intent.putExtra("Memo", binding.writeModeEditText.text.toString())
             setResult(RESULT_OK, intent)

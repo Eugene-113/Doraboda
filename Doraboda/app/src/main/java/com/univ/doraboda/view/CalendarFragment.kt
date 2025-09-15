@@ -13,7 +13,6 @@ import android.widget.NumberPicker
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,92 +49,64 @@ class CalendarFragment : Fragment() {
                 val dayInfo = intent.getStringExtra("DayAndExist")
                 if(dayInfo != null){
                     val dayInfos = dayInfo.split("/")
-                    if(dayInfos.get(3) == "true"){
+                    if(dayInfos.get(3) == "true" || dayInfos.get(4) == "true"){
                         val thisCalendar = Calendar.getInstance()
                         thisCalendar.set(dayInfos.get(0).toInt(), dayInfos.get(1).toInt()-1, dayInfos.get(2).toInt(), 0, 0, 0)
-                        val list = calendarUtil.getDays(thisCalendar)
-                        val calendar1 = getStartTime(list)
-                        val calendar2 = getEndTime(list)
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            val memoList = MemoRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
-                            withContext(Dispatchers.Main){
-                                /*
-                                for (i in memoList) {
-                                    Timber.d("memoMap - ${i}")
-                                }
-                                 */
-                                for(item in memoList){
-                                    val itemCalendar = Calendar.getInstance()
-                                    itemCalendar.time = item.ID
-                                    val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                                    list[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
-                                }
-                                calendarAdapter!!.submitList(list)
-                                delay(200)
-                                binding.calendarRecyclerView.scrollToPosition(middlePositionOfItem)
-                            }
-                        }
+                        val newList = calendarUtil.getDays(thisCalendar)
+                        val calendar1 = getStartTime(newList)
+                        val calendar2 = getEndTime(newList)
+                        submitAdapterList(calendar1, calendar2)
                     }
                 }
             }
         }
     }
 
+    lateinit var list: ArrayList<CalendarItem>
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
         //지금 화면에 표시되는 년월을 다이얼로그에 전달할 목적으로 사용된다
-        binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_calendar, container, false)
+        binding = FragmentCalendarBinding.inflate(inflater, container, false)
         val intent = Intent(activity, SettingsActivity::class.java)
         binding.calendarSettingsImageView.setOnClickListener {
             startActivity(intent)
         }
 
         application = requireActivity().application
-        var isInit = false
+        var isInit: Boolean
         val calendar = Calendar.getInstance()
-        val list = calendarUtil.getDays(calendar)
+        list = calendarUtil.getDays(calendar)
 
         val calendar1 = getStartTime(list)
         val calendar2 = getEndTime(list)
 
-        lifecycleScope.launch(Dispatchers.IO){
-            val memoList = MemoRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
-            withContext(Dispatchers.Main){
-                for(item in memoList){
-                    val itemCalendar = Calendar.getInstance()
-                    itemCalendar.time = item.ID
-                    val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                    list[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
+        val manager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        calendarAdapter = CalendarAdapter(activity as Context, startForResult, requireActivity())
+        binding.calendarRecyclerView.apply {
+            layoutManager = manager
+            adapter = calendarAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener(){
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) { //리사이클러뷰 스크롤 시,
+                    super.onScrolled(recyclerView, dx, dy)
+                    val lm = layoutManager as LinearLayoutManager
+                    val visibleItemPosition = lm.findFirstVisibleItemPosition()
+                    val thisCalendarItem = calendarItem.clone() as Calendar
+                    thisCalendarItem.add(Calendar.MONTH, visibleItemPosition-middlePositionOfItem) //기준점이 되는 년월에서 (리사이클러뷰 스크롤 위치에 대한) 변위를 더한다
+                    selectedCalendarItem = thisCalendarItem //현재 아이템 위치 저장
+                    binding.dateTextView.text = "${thisCalendarItem.get(Calendar.YEAR)}년 ${thisCalendarItem.get(Calendar.MONTH)+1}월"
                 }
-                val manager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-                calendarAdapter = CalendarAdapter(activity as Context, startForResult)
-                binding.calendarRecyclerView.apply {
-                    layoutManager = manager
-                    adapter = calendarAdapter
-                    scrollToPosition(middlePositionOfItem)
-                    addOnScrollListener(object : RecyclerView.OnScrollListener(){
-                        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) { //리사이클러뷰 스크롤 시,
-                            super.onScrolled(recyclerView, dx, dy)
-                            val lm = layoutManager as LinearLayoutManager
-                            val visibleItemPosition = lm.findFirstVisibleItemPosition()
-                            val thisCalendarItem = calendarItem.clone() as Calendar
-                            thisCalendarItem.add(Calendar.MONTH, visibleItemPosition-middlePositionOfItem) //기준점이 되는 년월에서 (리사이클러뷰 스크롤 위치에 대한) 변위를 더한다
-                            selectedCalendarItem = thisCalendarItem //현재 아이템 위치 저장
-                            binding.dateTextView.text = "${thisCalendarItem.get(Calendar.YEAR)}년 ${thisCalendarItem.get(Calendar.MONTH)+1}월"
-                        }
-                    })
-                }
-                calendarAdapter!!.submitList(list)
-                setDateTextView(calendar)
-                val snap = PagerSnapHelper()
-                snap.attachToRecyclerView(binding.calendarRecyclerView)
-                isInit = true
-            }
+            })
         }
+
+        setDateTextView(calendar)
+        val snap = PagerSnapHelper()
+        snap.attachToRecyclerView(binding.calendarRecyclerView)
+        isInit = true
+
+        submitAdapterList(calendar1, calendar2)
 
         binding.dateTextView.setOnClickListener {
             if(isInit){
@@ -164,16 +135,17 @@ class CalendarFragment : Fragment() {
                     val changedList = calendarUtil.getDays(changedCalendar)
                     val calendar3 = getStartTime(changedList)
                     val calendar4 = getEndTime(changedList)
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        val memoList = MemoRepository(application).getBetween(calendar3.timeInMillis, calendar4.timeInMillis)
+                    lifecycleScope.launch(Dispatchers.IO){
+                        val dataList = MemoRepository(application).getBetween(calendar3.timeInMillis, calendar4.timeInMillis)
                         withContext(Dispatchers.Main){
-                            for(item in memoList){
+                            for(item in dataList){
                                 val itemCalendar = Calendar.getInstance()
-                                itemCalendar.time = item.ID
-                                val itemIndex = changedList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                                changedList[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
+                                itemCalendar.time = item.ID //현재 Data 아이템
+                                val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
+                                if(item.memo != null) list[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
+                                if(item.emotion != null) list[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
                             }
-                            calendarAdapter!!.submitList(changedList)
+                            calendarAdapter!!.submitList(list)
                             delay(100)
                             binding.calendarRecyclerView.scrollToPosition(middlePositionOfItem)
                             setDateTextView(changedCalendar)
@@ -206,5 +178,23 @@ class CalendarFragment : Fragment() {
         calendar2.set(date2.year, date2.month-1, 32, 0, 0, 0)
         calendar2.set(Calendar.MILLISECOND, 0)
         return calendar2
+    }
+
+    fun submitAdapterList(calendar1: Calendar, calendar2: Calendar){
+        lifecycleScope.launch(Dispatchers.IO){
+            val dataList = MemoRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
+            withContext(Dispatchers.Main){
+                for(item in dataList){
+                    val itemCalendar = Calendar.getInstance()
+                    itemCalendar.time = item.ID //현재 Data 아이템
+                    val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
+                    if(item.memo != null) list[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
+                    if(item.emotion != null) list[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
+                }
+                calendarAdapter!!.submitList(list)
+                delay(100)
+                binding.calendarRecyclerView.scrollToPosition(middlePositionOfItem)
+            }
+        }
     }
 }

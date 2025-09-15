@@ -4,11 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
+import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ActivityReadModeBinding
 import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Memo
@@ -23,29 +24,43 @@ import java.util.Date
 class ReadModeActivity : AppCompatActivity() {
     lateinit var binding: ActivityReadModeBinding
     lateinit var nonEditedDate: Date
+    var thisEmo: String? = "none"
 
     val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val intent = result.data
             if(intent != null){
-                val memo = intent.getStringExtra("Memo").toString() //쓰기 화면에서 받아온 메모
-                val btnType = intent.getStringExtra("Btn")
-
-                when(btnType.toString()){
-                    in "delete" -> {
-                        binding.readModeTextView4.text = "작성된 메모가 없습니다."
-                        viewModel.handleIntent(ReadModeIntent.DeleteMemo(Memo(nonEditedDate, memo)))
-                    }
-                    in "save" -> {
-                        Timber.d("save")
-                        binding.readModeTextView4.text = memo
-                        if(!isMemoExist){
-                            viewModel.handleIntent(ReadModeIntent.InsertMemo(Memo(nonEditedDate, memo)))
-                        } else {
-                            viewModel.handleIntent(ReadModeIntent.UpdateMemo(nonEditedDate, memo))
+                when(intent.getStringExtra("Mode")){
+                    "emotion" -> {
+                        val emo = intent.getStringExtra("Emotion")
+                        if(emo != null && emo != thisEmo){ //변경사항 있으면(선택했고, 이전에 선택한것과 다름)
+                            if(!isMemoExist){
+                                viewModel.handleIntent(ReadModeIntent.InsertData(Memo(nonEditedDate, null, emo)))
+                            } else {
+                                if(emo == "none") viewModel.handleIntent(ReadModeIntent.UpdateEmotion(nonEditedDate, null))
+                                else viewModel.handleIntent(ReadModeIntent.UpdateEmotion(nonEditedDate, emo))
+                            }
                         }
                     }
-                    else -> {}
+                    "memo" -> {
+                        val memo = intent.getStringExtra("Memo").toString() //쓰기 화면에서 받아온 메모
+                        val btnType = intent.getStringExtra("Btn")
+                        when(btnType.toString()){
+                            in "delete" -> {
+                                binding.readModeTextView4.text = "작성된 메모가 없습니다."
+                                viewModel.handleIntent(ReadModeIntent.UpdateMemo(nonEditedDate, null))
+                            }
+                            in "save" -> {
+                                binding.readModeTextView4.text = memo
+                                if(!isMemoExist){
+                                    viewModel.handleIntent(ReadModeIntent.InsertData(Memo(nonEditedDate, memo, null)))
+                                } else {
+                                    viewModel.handleIntent(ReadModeIntent.UpdateMemo(nonEditedDate, memo))
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
                 }
             }
         }
@@ -53,9 +68,12 @@ class ReadModeActivity : AppCompatActivity() {
 
     lateinit var viewModel: ReadModeViewModel
     var isMemoExist = false
+    var isEmotionExist = false
+    var isDataExist = false
     var nonSlashedDate: String? = null
     var flag = true
-    var firstValue = false
+    var firstMemoValue = false
+    var firstEmotionValue = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,39 +107,101 @@ class ReadModeActivity : AppCompatActivity() {
         val resIntent = Intent()
         setResult(RESULT_OK, resIntent)
 
+        binding.readModeCardView1.setOnClickListener {
+            val modal = AddEmotionFragment()
+            val bundle = Bundle()
+            bundle.putString("Emotion", thisEmo)
+            bundle.putString("Date", nonSlashedDate)
+            bundle.putBoolean("IsDataExist", isDataExist)
+            modal.arguments = bundle
+            modal.show(supportFragmentManager, "AddEmotionFragment")
+        }
+
         lifecycleScope.launch{
             viewModel.state.collect{
                 when(it){
                     is ReadModeState.Loading -> showLoadingImage()
-                    is ReadModeState.SuccessToTakeMemo -> {
+                    is ReadModeState.SuccessToTakeData -> {
                         //메모가 존재하지 않으면 '작성된 메모가 없습니다.', 존재하면 메모 그대로 출력
-                        binding.readModeTextView4.text = it.memo
-                        isMemoExist = true
+                        if(it.memo == null) binding.readModeTextView4.text = "작성된 메모가 없습니다."
+                        else binding.readModeTextView4.text = it.memo
+                        thisEmo = it.emotion
+                        setImage(it.emotion)
+                        isMemoExist = it.memo != null
+                        isEmotionExist = it.emotion != null
+                        isDataExist = it.isDataExist == 1
                         if(flag){
-                            firstValue = true
+                            firstMemoValue = isMemoExist
+                            firstEmotionValue = isEmotionExist
                             flag = false
                         }
                     }
-                    is ReadModeState.FailedToTakeMemo -> {
+                    is ReadModeState.SuccessToInsertData -> {
+                        when(it.mOrE){
+                            "m" -> {
+                                binding.readModeTextView4.text = it.info
+                                isMemoExist = true
+                            }
+                            "e" -> {
+                                setImage(it.info)
+                                thisEmo = it.info
+                                isEmotionExist = true
+                            }
+                        }
+                    }
+                    is ReadModeState.SuccessToUpdateMemo -> {
+                        isMemoExist = if(it.memo == null){
+                            binding.readModeTextView4.text = "작성된 메모가 없습니다."
+                            false
+                        }
+                        else {
+                            binding.readModeTextView4.text = it.memo
+                            true
+                        }
+                    }
+                    is ReadModeState.SuccessToUpdateEmotion -> {
+                        isEmotionExist = if(it.emotion == null){
+                            setImage(null)
+                            thisEmo = "none"
+                            false
+                        }
+                        else {
+                            setImage(it.emotion)
+                            thisEmo = it.emotion
+                            true
+                        }
+                    }
+                    is ReadModeState.SuccessToDeleteData -> {
+                        setImage(null)
                         binding.readModeTextView4.text = "작성된 메모가 없습니다."
                         isMemoExist = false
-                        if(flag){
-                            firstValue = false
-                            flag = false
-                        }
+                        isEmotionExist = false
+                        thisEmo = "none"
                     }
-                    is ReadModeState.SuccessToInsertMemo -> {
-                        isMemoExist = true }
-                    is ReadModeState.SuccessToUpdateMemo -> {
-                    }
-                    is ReadModeState.SuccessToDeleteMemo -> { isMemoExist = false }
                 }
-                resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstValue != isMemoExist}")
+                resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != isEmotionExist}")
             }
         }
-        viewModel.handleIntent(ReadModeIntent.TakeMemo(nonEditedDate))
+        viewModel.handleIntent(ReadModeIntent.TakeData(nonEditedDate))
 
+        binding.readModeCardView3.setOnClickListener {
+            viewModel.handleIntent(ReadModeIntent.DeleteData(nonEditedDate))
+            finish()
+        }
     }
     fun showLoadingImage(){
+    }
+
+    fun setImage(emotion: String?){
+        val image = when(emotion){
+            "normal" -> R.drawable.normal
+            "sad" -> R.drawable.sad
+            "joyful" -> R.drawable.joyful
+            "angry" -> R.drawable.angry
+            "confused" -> R.drawable.confused
+            "happy" -> R.drawable.happy
+            else -> R.drawable.icon_add
+        }
+        Glide.with(baseContext).load(image).into(binding.readModeEditImageView1)
     }
 }

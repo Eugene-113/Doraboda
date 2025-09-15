@@ -1,5 +1,7 @@
 package com.univ.doraboda.viewModel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -32,63 +34,60 @@ class ReadModeViewModel(val repository: MemoRepository): ViewModel() {
 
     private fun reduce(cur: ReadModeState, intent: ReadModeIntent): ReadModeState{ //상태 변화
         return when(intent){
-            is ReadModeIntent.InsertMemo -> {
-                ReadModeState.SuccessToInsertMemo
+            is ReadModeIntent.InsertData -> {
+                if(intent.memo.emotion != null) ReadModeState.SuccessToInsertData("e", intent.memo.emotion!!)
+                else ReadModeState.SuccessToInsertData("m", intent.memo.memo!!)
             }
-            is ReadModeIntent.TakeMemo -> {
-                if(takenMemo == null) ReadModeState.FailedToTakeMemo
-                else ReadModeState.SuccessToTakeMemo(takenMemo!!.memo)
+            is ReadModeIntent.TakeData -> {
+                if(takenMemo == null) ReadModeState.SuccessToTakeData(null, null, 0)
+                else ReadModeState.SuccessToTakeData(takenMemo!!.memo, takenMemo!!.emotion, 1)
             }
-            is ReadModeIntent.UpdateMemo -> {
-                ReadModeState.SuccessToUpdateMemo
-            }
-            is ReadModeIntent.DeleteMemo -> {
-                ReadModeState.SuccessToDeleteMemo
-            }
+            is ReadModeIntent.UpdateMemo -> ReadModeState.SuccessToUpdateMemo(intent.memo)
+            is ReadModeIntent.DeleteData -> ReadModeState.SuccessToDeleteData
+            is ReadModeIntent.UpdateEmotion -> ReadModeState.SuccessToUpdateEmotion(intent.Emotion)
         }
     }
 
     fun handleIntent(intent: ReadModeIntent){ //각종 비동기처리
         viewModelScope.launch {
         when(intent){
-            is ReadModeIntent.InsertMemo -> {
-                insertMemo(intent.memo)
-            }
-            is ReadModeIntent.TakeMemo -> {
-                takeMemo(intent.id)
-            }
-            is ReadModeIntent.UpdateMemo -> {
-                updateMemo(intent.id, intent.memo)
-            }
-            is ReadModeIntent.DeleteMemo -> {
-                deleteMemo(intent.memo)
-            }
+            is ReadModeIntent.InsertData -> insertData(intent.memo)
+            is ReadModeIntent.TakeData -> takeMemo(intent.id)
+            is ReadModeIntent.UpdateMemo -> updateMemo(intent.id, intent.memo)
+            is ReadModeIntent.UpdateEmotion -> updateEmotion(intent.id, intent.Emotion)
+            is ReadModeIntent.DeleteData -> deleteData(intent.date)
         }
         eventChannel.send(intent)
         }
     }
 
     private suspend fun takeMemo(id: Date){
-        return withContext(dispatchers) {
+        withContext(dispatchers) {
             takenMemo = repository.get(id)
         }
     }
 
-    private suspend fun insertMemo(memo: Memo){
-        return withContext(dispatchers) {
-            repository.insert(memo)
+    private suspend fun insertData(memo: Memo){
+        withContext(dispatchers) {
+            repository.insertData(memo)
         }
     }
 
-    private suspend fun updateMemo(id: Date, memo: String){
-        return withContext(dispatchers) {
-             repository.update(id, memo)
+    private suspend fun updateMemo(id: Date, memo: String?){
+        withContext(dispatchers) {
+             repository.updateMemo(id, memo)
          }
     }
 
-    private suspend fun deleteMemo(memo: Memo){
-        return withContext(dispatchers) {
-            repository.delete(memo)
+    private suspend fun updateEmotion(id: Date, emotion: String?){
+        withContext(dispatchers) {
+            repository.updateEmotion(id, emotion)
+        }
+    }
+
+    private suspend fun deleteData(id: Date){
+        withContext(dispatchers) {
+            repository.deleteData(id)
         }
     }
 }

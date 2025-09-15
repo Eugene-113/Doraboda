@@ -68,4 +68,10 @@ dependencies {
     //by viewModels
     implementation ("androidx.activity:activity-ktx:${viewModels_version1}")
     implementation ("androidx.fragment:fragment-ktx:${viewModels_version2}")
+
+    //glide
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+
+    //recyclerView
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
 }
