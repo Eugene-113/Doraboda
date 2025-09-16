@@ -16,7 +16,7 @@ class EmotionAdapter(val context: Context, val emotion: String?) : ListAdapter<E
     var previousIndex = -1
     var thisIndex = 0
     var isSelectedFlag = false
-    var thisEmotion = "unchanged"
+    var thisEmotion: String? = "unchanged"
 
     object EmotionDiffCallback : DiffUtil.ItemCallback<EmotionItem>(){
         override fun areItemsTheSame(oldItem: EmotionItem, newItem: EmotionItem): Boolean {

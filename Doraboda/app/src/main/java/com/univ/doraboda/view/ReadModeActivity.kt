@@ -17,31 +17,19 @@ import com.univ.doraboda.repository.MemoRepository
 import com.univ.doraboda.state.ReadModeState
 import com.univ.doraboda.viewModel.ReadModeViewModel
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Calendar
 import java.util.Date
 
 class ReadModeActivity : AppCompatActivity() {
     lateinit var binding: ActivityReadModeBinding
     lateinit var nonEditedDate: Date
-    var thisEmo: String? = "none"
+    var thisEmo: String? = null
 
     val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             val intent = result.data
             if(intent != null){
                 when(intent.getStringExtra("Mode")){
-                    "emotion" -> {
-                        val emo = intent.getStringExtra("Emotion")
-                        if(emo != null && emo != thisEmo){ //변경사항 있으면(선택했고, 이전에 선택한것과 다름)
-                            if(!isMemoExist){
-                                viewModel.handleIntent(ReadModeIntent.InsertData(Memo(nonEditedDate, null, emo)))
-                            } else {
-                                if(emo == "none") viewModel.handleIntent(ReadModeIntent.UpdateEmotion(nonEditedDate, null))
-                                else viewModel.handleIntent(ReadModeIntent.UpdateEmotion(nonEditedDate, emo))
-                            }
-                        }
-                    }
                     "memo" -> {
                         val memo = intent.getStringExtra("Memo").toString() //쓰기 화면에서 받아온 메모
                         val btnType = intent.getStringExtra("Btn")
@@ -68,12 +56,11 @@ class ReadModeActivity : AppCompatActivity() {
 
     lateinit var viewModel: ReadModeViewModel
     var isMemoExist = false
-    var isEmotionExist = false
     var isDataExist = false
     var nonSlashedDate: String? = null
     var flag = true
     var firstMemoValue = false
-    var firstEmotionValue = false
+    var firstEmotionValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,11 +115,10 @@ class ReadModeActivity : AppCompatActivity() {
                         thisEmo = it.emotion
                         setImage(it.emotion)
                         isMemoExist = it.memo != null
-                        isEmotionExist = it.emotion != null
                         isDataExist = it.isDataExist == 1
                         if(flag){
                             firstMemoValue = isMemoExist
-                            firstEmotionValue = isEmotionExist
+                            firstEmotionValue = thisEmo
                             flag = false
                         }
                     }
@@ -145,7 +131,6 @@ class ReadModeActivity : AppCompatActivity() {
                             "e" -> {
                                 setImage(it.info)
                                 thisEmo = it.info
-                                isEmotionExist = true
                             }
                         }
                     }
@@ -160,26 +145,17 @@ class ReadModeActivity : AppCompatActivity() {
                         }
                     }
                     is ReadModeState.SuccessToUpdateEmotion -> {
-                        isEmotionExist = if(it.emotion == null){
-                            setImage(null)
-                            thisEmo = "none"
-                            false
-                        }
-                        else {
-                            setImage(it.emotion)
-                            thisEmo = it.emotion
-                            true
-                        }
+                        setImage(it.emotion)
+                        thisEmo = it.emotion
                     }
                     is ReadModeState.SuccessToDeleteData -> {
                         setImage(null)
                         binding.readModeTextView4.text = "작성된 메모가 없습니다."
                         isMemoExist = false
-                        isEmotionExist = false
-                        thisEmo = "none"
+                        thisEmo = null
                     }
                 }
-                resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != isEmotionExist}")
+                resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
             }
         }
         viewModel.handleIntent(ReadModeIntent.TakeData(nonEditedDate))

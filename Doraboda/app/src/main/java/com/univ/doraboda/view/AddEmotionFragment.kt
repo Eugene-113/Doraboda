@@ -1,7 +1,6 @@
 package com.univ.doraboda.view
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,7 +34,7 @@ class AddEmotionFragment : BottomSheetDialogFragment() {
 
         val emotionList = listOf(EmotionItem("normal", R.drawable.normal), EmotionItem("joyful", R.drawable.joyful),
             EmotionItem("happy", R.drawable.happy), EmotionItem("sad", R.drawable.sad), EmotionItem("angry", R.drawable.angry),
-            EmotionItem("confused", R.drawable.confused), EmotionItem("none", R.drawable.icon_delete))
+            EmotionItem("confused", R.drawable.confused), EmotionItem(null, R.drawable.icon_delete))
 
         bundle = arguments
 

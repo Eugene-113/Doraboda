@@ -55,7 +55,7 @@ class CalendarFragment : Fragment() {
                         val newList = calendarUtil.getDays(thisCalendar)
                         val calendar1 = getStartTime(newList)
                         val calendar2 = getEndTime(newList)
-                        submitAdapterList(calendar1, calendar2)
+                        submitAdapterList(calendar1, calendar2, newList)
                     }
                 }
             }
@@ -106,7 +106,7 @@ class CalendarFragment : Fragment() {
         snap.attachToRecyclerView(binding.calendarRecyclerView)
         isInit = true
 
-        submitAdapterList(calendar1, calendar2)
+        submitAdapterList(calendar1, calendar2, list)
 
         binding.dateTextView.setOnClickListener {
             if(isInit){
@@ -141,11 +141,11 @@ class CalendarFragment : Fragment() {
                             for(item in dataList){
                                 val itemCalendar = Calendar.getInstance()
                                 itemCalendar.time = item.ID //현재 Data 아이템
-                                val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                                if(item.memo != null) list[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
-                                if(item.emotion != null) list[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
+                                val itemIndex = changedList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
+                                if(item.memo != null) changedList[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
+                                if(item.emotion != null) changedList[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
                             }
-                            calendarAdapter!!.submitList(list)
+                            calendarAdapter!!.submitList(changedList)
                             delay(100)
                             binding.calendarRecyclerView.scrollToPosition(middlePositionOfItem)
                             setDateTextView(changedCalendar)
@@ -180,7 +180,7 @@ class CalendarFragment : Fragment() {
         return calendar2
     }
 
-    fun submitAdapterList(calendar1: Calendar, calendar2: Calendar){
+    fun submitAdapterList(calendar1: Calendar, calendar2: Calendar, list: ArrayList<CalendarItem>){
         lifecycleScope.launch(Dispatchers.IO){
             val dataList = MemoRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
             withContext(Dispatchers.Main){
