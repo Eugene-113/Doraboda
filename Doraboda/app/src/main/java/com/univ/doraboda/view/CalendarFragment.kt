@@ -23,6 +23,7 @@ import com.univ.doraboda.util.CalendarUtil
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.CalendarAdapter
 import com.univ.doraboda.databinding.FragmentCalendarBinding
+import com.univ.doraboda.repository.EmotionRepository
 import com.univ.doraboda.repository.MemoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -136,13 +137,19 @@ class CalendarFragment : Fragment() {
                     val calendar3 = getStartTime(changedList)
                     val calendar4 = getEndTime(changedList)
                     lifecycleScope.launch(Dispatchers.IO){
-                        val dataList = MemoRepository(application).getBetween(calendar3.timeInMillis, calendar4.timeInMillis)
+                        val memoList = MemoRepository(application).getBetween(calendar3.timeInMillis, calendar4.timeInMillis)
+                        val emotionList = EmotionRepository(application).getBetween(calendar3.timeInMillis, calendar4.timeInMillis)
                         withContext(Dispatchers.Main){
-                            for(item in dataList){
+                            for(item in memoList){
                                 val itemCalendar = Calendar.getInstance()
                                 itemCalendar.time = item.ID //현재 Data 아이템
                                 val itemIndex = changedList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
                                 if(item.memo != null) changedList[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
+                            }
+                            for(item in emotionList){
+                                val itemCalendar = Calendar.getInstance()
+                                itemCalendar.time = item.ID //현재 Data 아이템
+                                val itemIndex = changedList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
                                 if(item.emotion != null) changedList[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
                             }
                             calendarAdapter!!.submitList(changedList)
@@ -182,13 +189,19 @@ class CalendarFragment : Fragment() {
 
     fun submitAdapterList(calendar1: Calendar, calendar2: Calendar, list: ArrayList<CalendarItem>){
         lifecycleScope.launch(Dispatchers.IO){
-            val dataList = MemoRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
+            val memoList = MemoRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
+            val emotionList = EmotionRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
             withContext(Dispatchers.Main){
-                for(item in dataList){
+                for(item in memoList){
                     val itemCalendar = Calendar.getInstance()
                     itemCalendar.time = item.ID //현재 Data 아이템
                     val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
                     if(item.memo != null) list[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
+                }
+                for(item in emotionList){
+                    val itemCalendar = Calendar.getInstance()
+                    itemCalendar.time = item.ID //현재 Data 아이템
+                    val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
                     if(item.emotion != null) list[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
                 }
                 calendarAdapter!!.submitList(list)
