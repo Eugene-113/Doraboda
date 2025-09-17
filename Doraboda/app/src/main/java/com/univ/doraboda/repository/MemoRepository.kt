@@ -10,23 +10,19 @@ class MemoRepository (application: Application) {
     val db = MemoDatabase.getInstance(application)!!
     val dao: MemoDao = db.memoDao()
 
-    fun insertData(memo: Memo){
+    fun insertMemo(memo: Memo){
         dao.insertMemo(memo)
     }
 
-    fun updateEmotion(id: Date, emotion: String?){
-        dao.updateEmotion(id, emotion)
-    }
-
-    fun updateMemo(id: Date, memo: String?){
+    fun updateMemo(id: Date, memo: String){
         dao.updateMemo(id, memo)
     }
 
-    fun deleteData(date: Date){
+    fun deleteMemo(date: Date){
         dao.deleteData(date)
     }
 
-    fun get(id: Date): Memo{
+    fun getMemo(id: Date): Memo{
         return dao.getMemo(id)
     }
 

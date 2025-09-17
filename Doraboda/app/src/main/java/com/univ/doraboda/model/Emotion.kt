@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Date
 
-@Entity(tableName = "memoTable")
-data class Memo (
+@Entity(tableName = "emotionTable")
+data class Emotion (
     @PrimaryKey var ID: Date,
-    var memo: String
+    var emotion: String
 )
