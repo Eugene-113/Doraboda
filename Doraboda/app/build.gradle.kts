@@ -74,4 +74,9 @@ dependencies {
 
     //recyclerView
     implementation("androidx.recyclerview:recyclerview:1.4.0")
+
+    //navigation
+    val nav_version = "2.9.4"
+    implementation("androidx.navigation:navigation-fragment:$nav_version")
+    implementation("androidx.navigation:navigation-ui:$nav_version")
 }

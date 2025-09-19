@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/homenav_graph"
+    app:startDestination="@id/calendarItem"
+    >
+    <fragment
+        android:id="@+id/soundItem"
+        android:name="com.univ.doraboda.view.SoundFragment"
+        android:label=""
+        />
+    <fragment
+        android:id="@+id/calendarItem"
+        android:name="com.univ.doraboda.view.CalendarFragment"
+        android:label=""
+        />
+    <fragment
+        android:id="@+id/dataItem"
+        android:name="com.univ.doraboda.view.DataFragment"
+        android:label=""
+        />
+</navigation>
