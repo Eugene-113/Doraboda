@@ -14,8 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.univ.doraboda.CalendarItem
 import com.univ.doraboda.databinding.ItemCalendarBinding
 import timber.log.Timber
+import java.util.Calendar
 
-class CalendarAdapter(val context: Context, val startForResult: ActivityResultLauncher<Intent>, val activity: Activity) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
+class CalendarAdapter(val context: Context, val startForResult: ActivityResultLauncher<Intent>, val calendar: Calendar) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
     CalendarDiffCallback
 ) {
     object CalendarDiffCallback : DiffUtil.ItemCallback<CalendarItem>(){
@@ -29,11 +30,11 @@ class CalendarAdapter(val context: Context, val startForResult: ActivityResultLa
         }
     }
 
-    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context, val startForResult: ActivityResultLauncher<Intent>, val activity: Activity) : RecyclerView.ViewHolder(binding.root){
+    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context, val startForResult: ActivityResultLauncher<Intent>, val calendar: Calendar) : RecyclerView.ViewHolder(binding.root){
         fun bind(item: CalendarItem){
-            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/", startForResult, item.memoListMap, item.emotionListMap, activity)
+            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/", startForResult, item.memoListMap, item.emotionListMap, calendar)
             binding.dayRecyclerView.apply {
-                layoutManager = GridLayoutManager(activity, 7)
+                layoutManager = GridLayoutManager(context, 7)
                 adapter = dayAdapter
             }
             dayAdapter.submitList(item.days)
@@ -42,7 +43,7 @@ class CalendarAdapter(val context: Context, val startForResult: ActivityResultLa
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val binding = ItemCalendarBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return DayViewHolder(binding, context, startForResult, activity)
+        return DayViewHolder(binding, context, startForResult, calendar)
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {

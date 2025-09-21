@@ -2,8 +2,11 @@ package com.univ.doraboda.adapter
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,14 +33,15 @@ class EmotionAdapter(val context: Context, val emotion: String?) : ListAdapter<E
 
     inner class EmotionViewHolder(val context: Context, val binding: ItemEmotionBinding, val emotion: String?) : RecyclerView.ViewHolder(binding.root){
         fun bind(item: EmotionItem){
-            Glide.with(context).load(item.image).into(binding.emotionImageView)
+            val image = ContextCompat.getDrawable(context, item.image)
+            Glide.with(context).load(image).into(binding.emotionImageView)
             if(!isSelectedFlag && emotion == item.name){ //최초선택된게 없고 현재항목이 최초선택해야하는 항목일때,
                 Timber.d("first ${absoluteAdapterPosition}")
                 binding.emotionCardView.setCardBackgroundColor(Color.GRAY)
                 previousIndex = absoluteAdapterPosition
                 isSelectedFlag = true
             } else if(isSelectedFlag && previousIndex == absoluteAdapterPosition){ //최초선택 후, 현재항목이 선택해야하는 항목일때
-                binding.emotionCardView.setCardBackgroundColor(Color.WHITE)
+                binding.emotionCardView.setCardBackgroundColor(Color.TRANSPARENT)
                 previousIndex = thisIndex
             }
             binding.emotionImageView.setOnClickListener {
