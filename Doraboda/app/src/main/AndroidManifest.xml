@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".Application"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -13,10 +14,19 @@
         android:theme="@style/Theme.Doraboda"
         tools:targetApi="34">
         <activity
-            android:name=".SettingsActivity"
+            android:name=".view.AddEmotionActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".view.WriteModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.ReadModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
