@@ -14,28 +14,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        /*
-        val soundFragment = SoundFragment()
-        val calendarFragment = CalendarFragment()
-        val dataFragment = DataFragment()
-        binding.homeBottomNavigation.setOnItemSelectedListener {item ->
-            val fragment = when (item.itemId) {
-                R.id.soundItem -> {
-                    soundFragment
-                }
-                R.id.calendarItem -> {
-                    calendarFragment
-                }
-                else -> { dataFragment }
-            }
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.homeFrameLayout, fragment)
-                .commit()
-            true
-        }
-        binding.homeBottomNavigation.selectedItemId = R.id.calendarItem
-         */
-
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.homenavfragment) as NavHostFragment
         val navController = navHostFragment.navController
         binding.homeBottomNavigation.setupWithNavController(navController)

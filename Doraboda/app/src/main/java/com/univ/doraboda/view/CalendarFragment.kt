@@ -26,7 +26,6 @@ import com.univ.doraboda.databinding.FragmentCalendarBinding
 import com.univ.doraboda.repository.EmotionRepository
 import com.univ.doraboda.repository.MemoRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -69,6 +68,7 @@ class CalendarFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
         //지금 화면에 표시되는 년월을 다이얼로그에 전달할 목적으로 사용된다
         binding = FragmentCalendarBinding.inflate(inflater, container, false)

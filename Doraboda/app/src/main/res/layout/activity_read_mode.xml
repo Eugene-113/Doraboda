@@ -15,61 +15,29 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="15dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
         />
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/readModeCardView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="30dp"
-        app:layout_constraintTop_toBottomOf="@id/readModeTextView1"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="10dp"
-        >
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp">
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/readModeLinearLayout1"
-                android:background="@color/mainYellow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                >
-                <TextView
-                    android:text="이날의 감정"
-                    android:textSize="25sp"
-                    android:id="@+id/readModeTextView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:ignore="MissingConstraints" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-            <ImageView
-                android:id="@+id/readModeEditImageView1"
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:layout_margin="10dp"
-                android:src="@drawable/icon_add"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/readModeLinearLayout1"
-                />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
+
+    <ImageView
+        android:id="@+id/readModeEditImageView1"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_margin="40dp"
+        android:src="@drawable/icon_add"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/readModeTextView1"
+        />
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/readModeCardView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         app:cardCornerRadius="10dp"
-        app:cardElevation="10dp"
-        app:layout_constraintTop_toBottomOf="@id/readModeCardView1"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@id/readModeEditImageView1"
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -84,7 +52,8 @@
                 app:layout_constraintTop_toTopOf="parent"
                 >
         <TextView
-            android:text="일기"
+            android:text="오늘의 한마디"
+            android:textStyle="bold"
             android:textSize="25sp"
             android:id="@+id/readModeTextView3"
             app:layout_constraintTop_toTopOf="parent"

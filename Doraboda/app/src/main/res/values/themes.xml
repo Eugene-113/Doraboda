@@ -16,6 +16,7 @@
         <item name="windowNoTitle">true</item>
         <item name="bottomSheetDialogTheme">@style/BottomSheetTheme</item>
         <item name="android:fitsSystemWindows">true</item>
+        <item name="android:colorBackground">@color/bgYellow</item>
     </style>
 
     <style name="BottomSheetTheme" parent="Theme.Design.Light.BottomSheetDialog">

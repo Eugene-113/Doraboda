@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation("androidx.activity:activity:1.10.1")
+
     val room_version = "2.6.1"
     val viewModels_version1 = "1.10.1"
     val viewModels_version2 = "1.8.6"
@@ -79,4 +80,14 @@ dependencies {
     val nav_version = "2.9.4"
     implementation("androidx.navigation:navigation-fragment:$nav_version")
     implementation("androidx.navigation:navigation-ui:$nav_version")
+
+    val media3_version = "1.8.0"
+
+    //media session
+    implementation("androidx.media3:media3-session:$media3_version")
+
+    //Exoplayer
+    implementation("androidx.media3:media3-exoplayer:$media3_version")
+    implementation("androidx.media3:media3-ui:$media3_version")
+    implementation("androidx.media3:media3-common:$media3_version")
 }

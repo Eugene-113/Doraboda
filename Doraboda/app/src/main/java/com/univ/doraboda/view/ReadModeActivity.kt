@@ -93,7 +93,7 @@ class ReadModeActivity : AppCompatActivity() {
         val resIntent = Intent()
         setResult(RESULT_OK, resIntent)
 
-        binding.readModeCardView1.setOnClickListener {
+        binding.readModeEditImageView1.setOnClickListener {
             val modal = AddEmotionFragment()
             val bundle = Bundle()
             bundle.putString("Emotion", thisEmo)
