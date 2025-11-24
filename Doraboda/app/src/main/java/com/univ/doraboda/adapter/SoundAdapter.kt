@@ -1,6 +1,5 @@
 package com.univ.doraboda.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.media3.session.MediaController
