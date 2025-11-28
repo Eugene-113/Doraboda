@@ -1,14 +1,11 @@
 package com.univ.doraboda.repository
 
-import android.app.Application
 import com.univ.doraboda.dao.EmotionDao
-import com.univ.doraboda.database.EmotionDatabase
 import com.univ.doraboda.model.Emotion
 import java.util.Date
+import javax.inject.Inject
 
-class EmotionRepository (application: Application) {
-    val db = EmotionDatabase.getInstance(application)!!
-    val dao: EmotionDao = db.emotionDao()
+class EmotionRepository @Inject constructor(private val dao: EmotionDao){
 
     fun insertEmotion(emotion: Emotion){
         dao.insertEmotion(emotion)

@@ -9,20 +9,25 @@ import com.univ.doraboda.model.Memo
 import com.univ.doraboda.repository.EmotionRepository
 import com.univ.doraboda.repository.MemoRepository
 import com.univ.doraboda.state.ReadModeState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
+import javax.inject.Inject
 
-class ReadModeViewModel(val memoRepository: MemoRepository, val emotionRepository: EmotionRepository): ViewModel() {
+@HiltViewModel
+class ReadModeViewModel @Inject constructor(val memoRepository: MemoRepository, val emotionRepository: EmotionRepository): ViewModel() {
     private val eventChannel = Channel<ReadModeIntent>()
     val state = eventChannel.receiveAsFlow().runningFold(ReadModeState.Loading, ::reduce)
         .stateIn(viewModelScope, SharingStarted.Eagerly, ReadModeState.Loading)
     private val dispatchers = Dispatchers.IO
     private var takenMemo: Memo? = null
     private var takenEmotion: Emotion? = null
+    private var takenMemos: List<Memo>? = null
+    private var takenEmotions: List<Emotion>? = null
 
     class Factory(private val repo1: MemoRepository, private val repo2: EmotionRepository): ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -39,6 +44,7 @@ class ReadModeViewModel(val memoRepository: MemoRepository, val emotionRepositor
             is ReadModeIntent.InsertEmotion -> ReadModeState.SuccessToInsertEmotion(intent.emotion.emotion)
             is ReadModeIntent.TakeMemo -> ReadModeState.SuccessToTakeMemo(takenMemo?.memo)
             is ReadModeIntent.TakeEmotion -> ReadModeState.SuccessToTakeEmotion(takenEmotion?.emotion)
+            is ReadModeIntent.TakeBetweenMemoAndEmotion -> ReadModeState.SuccessToTakeBetweenMemoAndEmotion(takenMemos, takenEmotions)
             is ReadModeIntent.UpdateMemo -> ReadModeState.SuccessToUpdateMemo(intent.memo)
             is ReadModeIntent.UpdateEmotion -> ReadModeState.SuccessToUpdateEmotion(intent.Emotion)
             is ReadModeIntent.DeleteMemo -> ReadModeState.SuccessToDeleteMemo
@@ -51,6 +57,7 @@ class ReadModeViewModel(val memoRepository: MemoRepository, val emotionRepositor
         when(intent){
             is ReadModeIntent.TakeMemo -> takeMemo(intent.id)
             is ReadModeIntent.TakeEmotion -> takeEmotion(intent.id)
+            is ReadModeIntent.TakeBetweenMemoAndEmotion -> takeBetweenMemoAndEmotion(intent.date1, intent.date2)
             is ReadModeIntent.InsertMemo -> insertMemo(intent.memo)
             is ReadModeIntent.InsertEmotion -> insertEmotion(intent.emotion)
             is ReadModeIntent.UpdateMemo -> updateMemo(intent.id, intent.memo)
@@ -71,6 +78,13 @@ class ReadModeViewModel(val memoRepository: MemoRepository, val emotionRepositor
     private suspend fun takeEmotion(id: Date){
         withContext(dispatchers){
             takenEmotion = emotionRepository.getEmotion(id)
+        }
+    }
+
+    private suspend fun takeBetweenMemoAndEmotion(date1: Long, date2: Long){
+        withContext(dispatchers) {
+            takenMemos = memoRepository.getBetween(date1, date2)
+            takenEmotions = emotionRepository.getBetween(date1, date2)
         }
     }
 

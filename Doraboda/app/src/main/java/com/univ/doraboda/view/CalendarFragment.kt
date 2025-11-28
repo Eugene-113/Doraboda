@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -23,14 +24,18 @@ import com.univ.doraboda.util.CalendarUtil
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.CalendarAdapter
 import com.univ.doraboda.databinding.FragmentCalendarBinding
-import com.univ.doraboda.repository.EmotionRepository
-import com.univ.doraboda.repository.MemoRepository
-import kotlinx.coroutines.Dispatchers
+import com.univ.doraboda.intent.ReadModeIntent
+import com.univ.doraboda.model.Emotion
+import com.univ.doraboda.model.Memo
+import com.univ.doraboda.state.ReadModeState
+import com.univ.doraboda.viewModel.ReadModeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
+import kotlin.getValue
 
+@AndroidEntryPoint
 class CalendarFragment : Fragment() {
     lateinit var calendarItem: Calendar //스크롤 시의 기준점이다
     //CalendarUtil을 통해 불러온 날짜 List의 가운데 position에 있는 calendarItem (즉, CalendarUtil의 인자에 들어간 Calendar의 년월 데이터를 담는다)
@@ -40,6 +45,7 @@ class CalendarFragment : Fragment() {
     var calendarAdapter: CalendarAdapter? = null
     val calendarUtil = CalendarUtil()
     lateinit var application: android.app.Application
+    val viewModel: ReadModeViewModel by viewModels()
 
     val startForResult: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         Timber.d("startforresult")
@@ -55,7 +61,8 @@ class CalendarFragment : Fragment() {
                         val newList = calendarUtil.getDays(thisCalendar)
                         val calendar1 = getStartTime(newList)
                         val calendar2 = getEndTime(newList)
-                        submitAdapterList(calendar1, calendar2, newList)
+                        list = newList
+                        viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청
                         setDateAndTextView(thisCalendar)
                     }
                 }
@@ -63,7 +70,8 @@ class CalendarFragment : Fragment() {
         }
     }
 
-    lateinit var list: ArrayList<CalendarItem>
+    lateinit var list: ArrayList<CalendarItem> //지금 참고하는 캘린더 리스트
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -95,7 +103,7 @@ class CalendarFragment : Fragment() {
                     super.onScrolled(recyclerView, dx, dy)
                     val lm = layoutManager as LinearLayoutManager
                     val visibleItemPosition = lm.findFirstVisibleItemPosition()
-                    val thisCalendarItem = calendarItem.clone() as Calendar
+                    val thisCalendarItem = calendarItem.clone() as Calendar //기준점 날짜
                     thisCalendarItem.add(Calendar.MONTH, visibleItemPosition-middlePositionOfItem) //기준점이 되는 년월에서 (리사이클러뷰 스크롤 위치에 대한) 변위를 더한다
                     selectedCalendarItem = thisCalendarItem //현재 아이템 위치 저장
                     binding.dateTextView.text = "${thisCalendarItem.get(Calendar.YEAR)}년 ${thisCalendarItem.get(Calendar.MONTH)+1}월"
@@ -113,7 +121,18 @@ class CalendarFragment : Fragment() {
         snap.attachToRecyclerView(binding.calendarRecyclerView)
         isInit = true
 
-        submitAdapterList(calendar1, calendar2, list)
+        viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청 (최초)
+
+        lifecycleScope.launch{
+            viewModel.state.collect{
+                when(it){
+                    is ReadModeState.SuccessToTakeBetweenMemoAndEmotion -> {
+                        submitAdapterList(list, it.memos, it.emotions)
+                    }
+                    else -> {}
+                }
+            }
+        }
 
         binding.dateTextView.setOnClickListener {
             if(isInit){
@@ -142,27 +161,10 @@ class CalendarFragment : Fragment() {
                     val changedList = calendarUtil.getDays(changedCalendar)
                     val calendar3 = getStartTime(changedList)
                     val calendar4 = getEndTime(changedList)
-                    lifecycleScope.launch(Dispatchers.IO){
-                        val memoList = MemoRepository(application).getBetween(calendar3.timeInMillis, calendar4.timeInMillis)
-                        val emotionList = EmotionRepository(application).getBetween(calendar3.timeInMillis, calendar4.timeInMillis)
-                        withContext(Dispatchers.Main){
-                            for(item in memoList){
-                                val itemCalendar = Calendar.getInstance()
-                                itemCalendar.time = item.ID //현재 Data 아이템
-                                val itemIndex = changedList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                                changedList[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
-                            }
-                            for(item in emotionList){
-                                val itemCalendar = Calendar.getInstance()
-                                itemCalendar.time = item.ID //현재 Data 아이템
-                                val itemIndex = changedList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                                changedList[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
-                            }
-                            calendarAdapter!!.submitList(changedList)
-                            setDateAndTextView(changedCalendar)
-                            dialog.dismiss()
-                        }
-                    }
+                    list = changedList
+                    viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar3.timeInMillis, calendar4.timeInMillis)) //아이템배치 변경요청
+                    setDateAndTextView(changedCalendar)
+                    dialog.dismiss()
                 }
             }
         }
@@ -191,25 +193,19 @@ class CalendarFragment : Fragment() {
         return calendar2
     }
 
-    fun submitAdapterList(calendar1: Calendar, calendar2: Calendar, list: ArrayList<CalendarItem>){
-        lifecycleScope.launch(Dispatchers.IO){
-            val memoList = MemoRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
-            val emotionList = EmotionRepository(application).getBetween(calendar1.timeInMillis, calendar2.timeInMillis)
-            withContext(Dispatchers.Main){
-                for(item in memoList){
-                    val itemCalendar = Calendar.getInstance()
-                    itemCalendar.time = item.ID //현재 Data 아이템
-                    val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                    list[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
-                }
-                for(item in emotionList){
-                    val itemCalendar = Calendar.getInstance()
-                    itemCalendar.time = item.ID //현재 Data 아이템
-                    val itemIndex = list.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
-                    list[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
-                }
-                calendarAdapter!!.submitList(list)
+    fun submitAdapterList(thisList: ArrayList<CalendarItem>, memos: List<Memo>?, emotions: List<Emotion>?){
+            for(item in memos!!){
+                val itemCalendar = Calendar.getInstance()
+                itemCalendar.time = item.ID //현재 Data 아이템
+                val itemIndex = thisList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
+                thisList[itemIndex].memoListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), 1)
             }
-        }
+            for(item in emotions!!){
+                val itemCalendar = Calendar.getInstance()
+                itemCalendar.time = item.ID //현재 Data 아이템
+                val itemIndex = thisList.indexOfFirst { it.year == itemCalendar.get(Calendar.YEAR) && it.month == itemCalendar.get(Calendar.MONTH)+1 }
+                thisList[itemIndex].emotionListMap.set(itemCalendar.get(Calendar.DAY_OF_MONTH), item.emotion.toString())
+            }
+            calendarAdapter!!.submitList(thisList)
     }
 }
