@@ -1,14 +1,11 @@
 package com.univ.doraboda.repository
 
-import android.app.Application
 import com.univ.doraboda.dao.MemoDao
-import com.univ.doraboda.database.MemoDatabase
 import com.univ.doraboda.model.Memo
 import java.util.Date
+import javax.inject.Inject
 
-class MemoRepository (application: Application) {
-    val db = MemoDatabase.getInstance(application)!!
-    val dao: MemoDao = db.memoDao()
+class MemoRepository @Inject constructor(private val dao: MemoDao){
 
     fun insertMemo(memo: Memo){
         dao.insertMemo(memo)

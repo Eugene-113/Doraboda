@@ -7,6 +7,7 @@ import java.util.Date
 sealed class ReadModeIntent {
     data class TakeMemo(val id: Date): ReadModeIntent()
     data class TakeEmotion(val id: Date): ReadModeIntent()
+    data class TakeBetweenMemoAndEmotion(val date1: Long, val date2: Long): ReadModeIntent()
     data class UpdateEmotion(val id: Date, val Emotion: String): ReadModeIntent()
     data class InsertMemo(val memo: Memo): ReadModeIntent()
     data class InsertEmotion(val emotion: Emotion): ReadModeIntent()

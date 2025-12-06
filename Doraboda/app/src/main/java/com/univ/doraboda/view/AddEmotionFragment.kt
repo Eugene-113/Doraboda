@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.univ.doraboda.EmotionItem
 import com.univ.doraboda.R
@@ -16,13 +15,11 @@ import com.univ.doraboda.adapter.EmotionAdapter
 import com.univ.doraboda.databinding.FragmentAddEmotionBinding
 import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Emotion
-import com.univ.doraboda.model.Memo
-import com.univ.doraboda.repository.EmotionRepository
-import com.univ.doraboda.repository.MemoRepository
 import com.univ.doraboda.viewModel.ReadModeViewModel
-import timber.log.Timber
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 
+@AndroidEntryPoint
 class AddEmotionFragment : BottomSheetDialogFragment() {
     lateinit var binding: FragmentAddEmotionBinding
     lateinit var emotionAdapter: EmotionAdapter
@@ -60,11 +57,12 @@ class AddEmotionFragment : BottomSheetDialogFragment() {
             dateCalendar.set(dateArr.get(0).toInt(), dateArr.get(1).toInt()-1, dateArr.get(2).toInt(), 0, 0, 0)
             dateCalendar.set(Calendar.MILLISECOND, 0)
             val nonEditedDate = dateCalendar.time
-            val repo1 = MemoRepository(requireActivity().application)
-            val repo2 = EmotionRepository(requireActivity().application)
-            val viewModel: ReadModeViewModel by activityViewModels{
-                ReadModeViewModel.Factory(repo1, repo2)
-            }
+//            val repo1 = MemoRepository()
+//            val repo2 = EmotionRepository()
+//            val viewModel: ReadModeViewModel by activityViewModels{
+//                ReadModeViewModel.Factory(repo1, repo2)
+//            }
+            val viewModel: ReadModeViewModel by activityViewModels()
             if(emotionAdapter.thisEmotion == null) viewModel.handleIntent(ReadModeIntent.DeleteEmotion(nonEditedDate))
             else {
                 if(emotion != null) viewModel.handleIntent(ReadModeIntent.UpdateEmotion(nonEditedDate, emotionAdapter.thisEmotion!!))

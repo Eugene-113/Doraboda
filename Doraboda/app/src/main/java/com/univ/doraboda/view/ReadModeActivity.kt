@@ -6,21 +6,22 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.lifecycle.ViewModelProvider
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ActivityReadModeBinding
 import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Memo
-import com.univ.doraboda.repository.EmotionRepository
-import com.univ.doraboda.repository.MemoRepository
 import com.univ.doraboda.state.ReadModeState
 import com.univ.doraboda.viewModel.ReadModeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
+import kotlin.getValue
 
+@AndroidEntryPoint
 class ReadModeActivity : AppCompatActivity() {
     lateinit var binding: ActivityReadModeBinding
     lateinit var nonEditedDate: Date
@@ -55,7 +56,7 @@ class ReadModeActivity : AppCompatActivity() {
         }
     }
 
-    lateinit var viewModel: ReadModeViewModel
+    val viewModel: ReadModeViewModel by viewModels()
     var isMemoExist = false
     var nonSlashedDate: String? = null
     var memoFlag = true
@@ -78,9 +79,9 @@ class ReadModeActivity : AppCompatActivity() {
 
         binding.readModeTextView1.text = "${dateArr.get(0)}년 ${dateArr.get(1)}월 ${dateArr.get(2)}일"
 
-        val repo1 = MemoRepository(application)
-        val repo2 = EmotionRepository(application)
-        viewModel = ViewModelProvider(this, ReadModeViewModel.Factory(repo1, repo2)).get(ReadModeViewModel::class.java)
+        //val repo1 = MemoRepository()
+        //val repo2 = EmotionRepository()
+        //viewModel = ViewModelProvider(this, ReadModeViewModel.Factory(repo1, repo2)).get(ReadModeViewModel::class.java)
 
         val writeModeIntent = Intent(this, WriteModeActivity::class.java)
         binding.readModeEditImageView2.setOnClickListener {
@@ -93,7 +94,7 @@ class ReadModeActivity : AppCompatActivity() {
         val resIntent = Intent()
         setResult(RESULT_OK, resIntent)
 
-        binding.readModeCardView1.setOnClickListener {
+        binding.readModeEditImageView1.setOnClickListener {
             val modal = AddEmotionFragment()
             val bundle = Bundle()
             bundle.putString("Emotion", thisEmo)
@@ -154,6 +155,7 @@ class ReadModeActivity : AppCompatActivity() {
                         setImage(null)
                         thisEmo = null
                     }
+                    else -> {}
                 }
                 resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
             }
