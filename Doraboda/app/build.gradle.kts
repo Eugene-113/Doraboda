@@ -96,6 +96,11 @@ dependencies {
     //hilt
     implementation("com.google.dagger:hilt-android:2.57.1")
     ksp("com.google.dagger:hilt-android-compiler:2.57.1")
+
+    //guava
+    implementation("com.google.guava:guava:31.0.1-android")
+    implementation("androidx.concurrent:concurrent-futures:1.3.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0")
 }
 
 kapt {

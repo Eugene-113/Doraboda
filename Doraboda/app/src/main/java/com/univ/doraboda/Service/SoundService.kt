@@ -39,7 +39,7 @@ class SoundService: MediaSessionService() {
                     }
                     else {
                         scope = CoroutineScope(Dispatchers.Default).launch {
-                            delay(1000*5)
+                            delay(1000*8)
                             Timber.d("timer end")
                             withContext(Dispatchers.Main){
                                 releaseAll()
@@ -50,9 +50,6 @@ class SoundService: MediaSessionService() {
                 }
             }
         )
-
-        mediaSession!!.player.prepare()
-        mediaSession!!.player.play()
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession

@@ -7,16 +7,12 @@ import android.os.Bundle
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ActivityReadModeBinding
 import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Memo
-import com.univ.doraboda.repository.EmotionRepository
-import com.univ.doraboda.repository.MemoRepository
 import com.univ.doraboda.state.ReadModeState
 import com.univ.doraboda.viewModel.ReadModeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,7 +56,6 @@ class ReadModeActivity : AppCompatActivity() {
         }
     }
 
-    //lateinit var viewModel: ReadModeViewModel
     val viewModel: ReadModeViewModel by viewModels()
     var isMemoExist = false
     var nonSlashedDate: String? = null

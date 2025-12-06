@@ -1,7 +1,6 @@
 package com.univ.doraboda.viewModel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Emotion
@@ -28,15 +27,6 @@ class ReadModeViewModel @Inject constructor(val memoRepository: MemoRepository, 
     private var takenEmotion: Emotion? = null
     private var takenMemos: List<Memo>? = null
     private var takenEmotions: List<Emotion>? = null
-
-    class Factory(private val repo1: MemoRepository, private val repo2: EmotionRepository): ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if(modelClass.isAssignableFrom(ReadModeViewModel::class.java)){
-                return ReadModeViewModel(repo1, repo2) as T
-            }
-            throw IllegalArgumentException("")
-        }
-    }
 
     private fun reduce(cur: ReadModeState, intent: ReadModeIntent): ReadModeState{ //상태 변화
         return when(intent){
