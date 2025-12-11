@@ -57,11 +57,6 @@ class AddEmotionFragment : BottomSheetDialogFragment() {
             dateCalendar.set(dateArr.get(0).toInt(), dateArr.get(1).toInt()-1, dateArr.get(2).toInt(), 0, 0, 0)
             dateCalendar.set(Calendar.MILLISECOND, 0)
             val nonEditedDate = dateCalendar.time
-//            val repo1 = MemoRepository()
-//            val repo2 = EmotionRepository()
-//            val viewModel: ReadModeViewModel by activityViewModels{
-//                ReadModeViewModel.Factory(repo1, repo2)
-//            }
             val viewModel: ReadModeViewModel by activityViewModels()
             if(emotionAdapter.thisEmotion == null) viewModel.handleIntent(ReadModeIntent.DeleteEmotion(nonEditedDate))
             else {

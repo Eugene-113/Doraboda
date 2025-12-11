@@ -121,8 +121,6 @@ class CalendarFragment : Fragment() {
         snap.attachToRecyclerView(binding.calendarRecyclerView)
         isInit = true
 
-        viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청 (최초)
-
         lifecycleScope.launch{
             viewModel.state.collect{
                 when(it){
@@ -133,6 +131,8 @@ class CalendarFragment : Fragment() {
                 }
             }
         }
+
+        viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청 (최초)
 
         binding.dateTextView.setOnClickListener {
             if(isInit){

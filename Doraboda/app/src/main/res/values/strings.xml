@@ -6,4 +6,6 @@
     <string name="channelID">ID_Doraboda</string>
     <string name="channelName">Doraboda</string>
     <string name="channelDesc">Doraboda Channel</string>
+    <string name="data">이번달, 가장 많이 느낀 감정</string>
+    <string name="data2">이달의 감정 데이터</string>
 </resources>
