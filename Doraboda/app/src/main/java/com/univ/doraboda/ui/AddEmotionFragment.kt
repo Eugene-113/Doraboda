@@ -1,4 +1,4 @@
-package com.univ.doraboda.view
+package com.univ.doraboda.ui
 
 import android.content.Context
 import android.os.Bundle
@@ -20,18 +20,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 
 @AndroidEntryPoint
-class AddEmotionFragment : BottomSheetDialogFragment() {
-    lateinit var binding: FragmentAddEmotionBinding
+class AddEmotionFragment : BaseBottomSheetFragment<FragmentAddEmotionBinding>() {
     lateinit var emotionAdapter: EmotionAdapter
     var emotion: String? = null
     var bundle: Bundle? = null
+    override fun layoutId(): Int = R.layout.fragment_add_emotion
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_emotion, container, false)
-
+    override fun layoutInit(){
         val emotionList = listOf(EmotionItem("normal", R.drawable.normal), EmotionItem("joyful", R.drawable.joyful),
             EmotionItem("happy", R.drawable.happy), EmotionItem("sad", R.drawable.sad), EmotionItem("angry", R.drawable.angry),
             EmotionItem("confused", R.drawable.confused), EmotionItem(null, R.drawable.icon_delete))
@@ -45,8 +40,6 @@ class AddEmotionFragment : BottomSheetDialogFragment() {
             adapter = emotionAdapter
         }
         emotionAdapter.submitList(emotionList)
-
-        return binding.root
     }
 
     override fun onDestroy() {

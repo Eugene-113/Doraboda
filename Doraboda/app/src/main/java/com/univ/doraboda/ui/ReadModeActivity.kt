@@ -1,4 +1,4 @@
-package com.univ.doraboda.view
+package com.univ.doraboda.ui
 
 import android.app.Activity
 import android.content.Intent

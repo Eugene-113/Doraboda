@@ -16,19 +16,19 @@
         android:theme="@style/Theme.Doraboda"
         tools:targetApi="34">
         <activity
-            android:name=".view.AddEmotionActivity"
+            android:name=".ui.AddEmotionActivity"
             android:exported="false" />
         <activity
-            android:name=".view.WriteModeActivity"
+            android:name=".ui.WriteModeActivity"
             android:exported="false" />
         <activity
-            android:name=".view.ReadModeActivity"
+            android:name=".ui.ReadModeActivity"
             android:exported="false" />
         <activity
-            android:name=".view.SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".view.MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

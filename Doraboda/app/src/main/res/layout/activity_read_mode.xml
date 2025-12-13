@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.ReadModeActivity">
+    tools:context=".ui.ReadModeActivity">
     <TextView
         android:id="@+id/readModeTextView1"
         android:text="2099년 9월 9일"
