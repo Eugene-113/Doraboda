@@ -1,7 +1,14 @@
 package com.univ.doraboda.ui
 
+import android.app.Fragment
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.github.mikephil.charting.components.AxisBase
@@ -21,6 +28,7 @@ import com.univ.doraboda.state.ReadModeState
 import com.univ.doraboda.viewModel.ReadModeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 
 @AndroidEntryPoint
@@ -30,7 +38,7 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
     var maximumNumber = 0
     val emotionImageList = listOf(R.drawable.normal, R.drawable.sad, R.drawable.joyful, R.drawable.angry, R.drawable.confused, R.drawable.happy, R.drawable.icon_question)
     val emotionTextList = listOf("무감각", "슬픔", "즐거움", "분노", "혼란", "행복")
-
+    var maximumIndexList = mutableListOf<Int>()
     override fun layoutId() = R.layout.fragment_data
 
     override fun layoutInit() {
@@ -39,10 +47,11 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                 when(it){
                     is ReadModeState.SuccessToTakeBetweenMemoAndEmotion -> { //그래프 갱신
                         val maximumEmotionIndex = getMaximumEmotionAndEmotionData(it.emotions)
-                        binding.dataTextView4.text = if(maximumEmotionIndex == 0){
-                            "아직 감정 데이터가 없어요"
-                        } else {
-                            "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumEmotionIndex)}"
+                        binding.dataTextView4.text = when(maximumIndexList.size){
+                            0 -> "아직 감정 데이터가 없어요"
+                            1 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumEmotionIndex)}"
+                            2 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumIndexList.get(0))}, ${emotionTextList.get(maximumIndexList.get(1))}"
+                            else -> "다양한 감정을 골고루 느끼셨어요"
                         }
 
                         val values = ArrayList<BarEntry>()
@@ -80,7 +89,10 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                         val dataSet2 = PieDataSet(values2, "").apply {
                             setColors(colorList)
                         }
-                        val pieData = PieData(dataSet2)
+                        val pieData = PieData(dataSet2).apply {
+                            setValueTextSize(20f)
+                            setValueTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+                        }
 
                         binding.dataPieChart.apply {
                             data = pieData
@@ -88,7 +100,8 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                         }
                         Glide.with(requireContext()).load(emotionImageList.get(maximumEmotionIndex)).into(binding.dataImageView)
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
         }
@@ -127,19 +140,21 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
         }
 
         binding.dataPieChart.apply {
-            holeRadius = 60f
+            holeRadius = 70f
             description.isEnabled = false
             legend.isEnabled = false
+
             setTouchEnabled(false)
             setUsePercentValues(true)
+            setEntryLabelTextSize(15f)
         }
-
         viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis))
     }
 
     fun getMaximumEmotionAndEmotionData(emotions: List<Emotion>?): Int{
         emotionNumberList = mutableListOf(0, 0, 0, 0, 0, 0)
         maximumNumber = 0
+        maximumIndexList = mutableListOf<Int>()
 
         for(i in 0..<emotions!!.size){
             val thisEmotion: Int =
@@ -161,6 +176,12 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
             if(thisEmotionNumber > maximumNumber){
                 maximumEmotionIndex = i
                 maximumNumber = thisEmotionNumber
+            }
+        }
+        for(i in 0..<6){
+            val thisEmotionNumber = emotionNumberList.get(i)
+            if (thisEmotionNumber == maximumNumber){
+                maximumIndexList.add(i)
             }
         }
         return maximumEmotionIndex

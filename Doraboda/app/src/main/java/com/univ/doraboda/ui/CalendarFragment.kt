@@ -4,10 +4,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.NumberPicker
 import androidx.activity.result.ActivityResult
@@ -40,7 +36,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     //CalendarUtil을 통해 불러온 날짜 List의 가운데 position에 있는 calendarItem (즉, CalendarUtil의 인자에 들어간 Calendar의 년월 데이터를 담는다)
     val middlePositionOfItem = 50 //날짜 List의 가운데 position, 기준점 position
     var calendarAdapter: CalendarAdapter? = null
-    val calendarUtil = CalendarUtil()
+    lateinit var calendarUtil: CalendarUtil
     lateinit var application: android.app.Application
     val viewModel: ReadModeViewModel by viewModels()
 
@@ -72,6 +68,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     override fun layoutId(): Int = R.layout.fragment_calendar
 
     override fun layoutInit(){
+        calendarUtil = CalendarUtil()
         var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
         //지금 화면에 표시되는 년월을 다이얼로그에 전달할 목적으로 사용된다
         val intent = Intent(activity, SettingsActivity::class.java)
@@ -121,7 +118,8 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                     is ReadModeState.SuccessToTakeBetweenMemoAndEmotion -> {
                         submitAdapterList(list, it.memos, it.emotions)
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
         }

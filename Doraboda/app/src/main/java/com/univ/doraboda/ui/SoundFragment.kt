@@ -14,6 +14,7 @@ import com.univ.doraboda.databinding.FragmentSoundBinding
 import com.univ.doraboda.intent.SoundIntent
 import com.univ.doraboda.viewModel.SoundViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import kotlin.getValue
 
 @AndroidEntryPoint

@@ -2,13 +2,8 @@ package com.univ.doraboda.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.univ.doraboda.EmotionItem
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.EmotionAdapter
