@@ -1,6 +1,7 @@
 package com.univ.doraboda.ui
 
 import android.app.Fragment
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -90,6 +91,11 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                             setColors(colorList)
                         }
                         val pieData = PieData(dataSet2).apply {
+                            setValueFormatter(object : ValueFormatter(){
+                                override fun getFormattedValue(value: Float): String? {
+                                    return "${value.toInt()}%"
+                                }
+                            })
                             setValueTextSize(20f)
                             setValueTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                         }
@@ -140,10 +146,9 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
         }
 
         binding.dataPieChart.apply {
-            holeRadius = 70f
+            holeRadius = 50f
             description.isEnabled = false
             legend.isEnabled = false
-
             setTouchEnabled(false)
             setUsePercentValues(true)
             setEntryLabelTextSize(15f)
