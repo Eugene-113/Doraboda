@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.WriteModeActivity">
+    tools:context=".ui.WriteModeActivity">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/writeModeToolbar"
         android:layout_width="match_parent"

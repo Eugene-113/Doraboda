@@ -1,14 +1,9 @@
-package com.univ.doraboda.view
+package com.univ.doraboda.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.univ.doraboda.EmotionItem
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.EmotionAdapter
@@ -20,18 +15,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 
 @AndroidEntryPoint
-class AddEmotionFragment : BottomSheetDialogFragment() {
-    lateinit var binding: FragmentAddEmotionBinding
+class AddEmotionFragment : BaseBottomSheetFragment<FragmentAddEmotionBinding>() {
     lateinit var emotionAdapter: EmotionAdapter
     var emotion: String? = null
     var bundle: Bundle? = null
+    override fun layoutId(): Int = R.layout.fragment_add_emotion
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_emotion, container, false)
-
+    override fun layoutInit(){
         val emotionList = listOf(EmotionItem("normal", R.drawable.normal), EmotionItem("joyful", R.drawable.joyful),
             EmotionItem("happy", R.drawable.happy), EmotionItem("sad", R.drawable.sad), EmotionItem("angry", R.drawable.angry),
             EmotionItem("confused", R.drawable.confused), EmotionItem(null, R.drawable.icon_delete))
@@ -45,8 +35,6 @@ class AddEmotionFragment : BottomSheetDialogFragment() {
             adapter = emotionAdapter
         }
         emotionAdapter.submitList(emotionList)
-
-        return binding.root
     }
 
     override fun onDestroy() {
@@ -57,11 +45,6 @@ class AddEmotionFragment : BottomSheetDialogFragment() {
             dateCalendar.set(dateArr.get(0).toInt(), dateArr.get(1).toInt()-1, dateArr.get(2).toInt(), 0, 0, 0)
             dateCalendar.set(Calendar.MILLISECOND, 0)
             val nonEditedDate = dateCalendar.time
-//            val repo1 = MemoRepository()
-//            val repo2 = EmotionRepository()
-//            val viewModel: ReadModeViewModel by activityViewModels{
-//                ReadModeViewModel.Factory(repo1, repo2)
-//            }
             val viewModel: ReadModeViewModel by activityViewModels()
             if(emotionAdapter.thisEmotion == null) viewModel.handleIntent(ReadModeIntent.DeleteEmotion(nonEditedDate))
             else {

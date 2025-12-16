@@ -101,6 +101,9 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-android")
     implementation("androidx.concurrent:concurrent-futures:1.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0")
+
+    //mpChart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
 
 kapt {

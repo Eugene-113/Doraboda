@@ -1,7 +1,5 @@
 package com.univ.doraboda.adapter
 
-import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -16,8 +14,7 @@ import com.bumptech.glide.Glide
 import com.univ.doraboda.DayItem
 import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ItemDayBinding
-import com.univ.doraboda.view.ReadModeActivity
-import timber.log.Timber
+import com.univ.doraboda.ui.ReadModeActivity
 import java.util.Calendar
 
 class DayAdapter(val context: Context, val yearAndMonth: String, val startForResult: ActivityResultLauncher<Intent>, val memoList: MutableMap<Int, Int>, val emotionList: MutableMap<Int, String>, val calendar: Calendar) : ListAdapter<DayItem, DayAdapter.DayViewHolder>(DayDiffCallback) {

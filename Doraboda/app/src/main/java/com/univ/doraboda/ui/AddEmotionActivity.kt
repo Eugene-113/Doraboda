@@ -1,4 +1,4 @@
-package com.univ.doraboda.view
+package com.univ.doraboda.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
