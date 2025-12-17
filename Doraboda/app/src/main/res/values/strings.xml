@@ -8,4 +8,5 @@
     <string name="channelDesc">Doraboda Channel</string>
     <string name="data">이번달, 가장 많이 느낀 감정</string>
     <string name="data2">이달의 감정 데이터</string>
+    <string name="readModeText">오늘의 한마디</string>
 </resources>
