@@ -1,20 +1,14 @@
 package com.univ.doraboda.ui
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.univ.doraboda.R
-import com.univ.doraboda.SoundItem
+import com.univ.doraboda.model.SoundItem
 import com.univ.doraboda.adapter.SoundAdapter
 import com.univ.doraboda.databinding.FragmentSoundBinding
 import com.univ.doraboda.intent.SoundIntent
 import com.univ.doraboda.viewModel.SoundViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import kotlin.getValue
 
 @AndroidEntryPoint

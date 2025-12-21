@@ -1,7 +1,6 @@
 package com.univ.doraboda.adapter
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -11,9 +10,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.univ.doraboda.CalendarItem
+import com.univ.doraboda.model.CalendarItem
 import com.univ.doraboda.databinding.ItemCalendarBinding
-import timber.log.Timber
 import java.util.Calendar
 
 class CalendarAdapter(val context: Context, val startForResult: ActivityResultLauncher<Intent>, val calendar: Calendar) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(

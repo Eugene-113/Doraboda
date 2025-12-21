@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import com.univ.doraboda.EmotionItem
+import com.univ.doraboda.model.EmotionItem
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.EmotionAdapter
 import com.univ.doraboda.databinding.FragmentAddEmotionBinding
