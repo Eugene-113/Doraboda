@@ -1,7 +1,7 @@
 package com.univ.doraboda.network
 
 import com.univ.doraboda.model.QuoteData
-import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
@@ -13,5 +13,5 @@ interface RetrofitApi {
         key: String,
         @Query("category")
         category: String
-    ): Response<QuoteData>
+    ): Call<List<QuoteData>>
 }

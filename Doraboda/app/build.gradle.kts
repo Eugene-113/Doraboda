@@ -25,7 +25,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "apiKey", localProperties["api_key"].toString())
+        buildConfigField("String", "apiKey", localProperties["api_key"] as String)
     }
 
     buildTypes {
@@ -46,6 +46,9 @@ android {
     }
     dataBinding {
         enable = true
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

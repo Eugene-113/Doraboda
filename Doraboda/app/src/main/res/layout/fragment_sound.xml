@@ -47,7 +47,6 @@
                 android:visibility="gone"
                 app:cardBackgroundColor="@color/subYellow">
                 <TextView
-                    android:text="@string/sound"
                     android:textSize="22sp"
                     android:textColor="@color/black"
                     android:id="@+id/readModeTextView3"
