@@ -2,8 +2,6 @@ package com.univ.doraboda.adapter
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.VectorDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -11,7 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.univ.doraboda.EmotionItem
+import com.univ.doraboda.model.EmotionItem
 import com.univ.doraboda.databinding.ItemEmotionBinding
 import timber.log.Timber
 

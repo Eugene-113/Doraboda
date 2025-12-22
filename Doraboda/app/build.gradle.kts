@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,6 +7,10 @@ plugins {
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
 }
+
+val localProperties = Properties()
+val file = project.rootProject.file("local.properties")
+if(file.exists()) file.inputStream().use { localProperties.load(it) }
 
 android {
     namespace = "com.univ.doraboda"
@@ -18,6 +24,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "apiKey", localProperties["api_key"] as String)
     }
 
     buildTypes {
@@ -38,6 +46,9 @@ android {
     }
     dataBinding {
         enable = true
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -104,6 +115,10 @@ dependencies {
 
     //mpChart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    //retrofit
+    implementation ("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation ("com.squareup.retrofit2:converter-gson:3.0.0")
 }
 
 kapt {

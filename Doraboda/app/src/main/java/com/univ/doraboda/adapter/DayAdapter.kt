@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.univ.doraboda.DayItem
+import com.univ.doraboda.model.DayItem
 import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ItemDayBinding
 import com.univ.doraboda.ui.ReadModeActivity

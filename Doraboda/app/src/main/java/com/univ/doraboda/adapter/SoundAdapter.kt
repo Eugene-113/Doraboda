@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.univ.doraboda.SoundItem
+import com.univ.doraboda.model.SoundItem
 import com.univ.doraboda.databinding.ItemSoundBinding
 
 class SoundAdapter(val onClick: (SoundItem) -> Unit) : ListAdapter<SoundItem, SoundAdapter.SoundViewHolder>(EmotionDiffCallback) {
