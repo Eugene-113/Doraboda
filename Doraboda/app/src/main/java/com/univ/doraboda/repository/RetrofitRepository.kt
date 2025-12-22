@@ -2,10 +2,11 @@ package com.univ.doraboda.repository
 
 import com.univ.doraboda.BuildConfig
 import com.univ.doraboda.network.RetrofitApi
-import com.univ.doraboda.network.RetrofitFactory
+import retrofit2.Retrofit
 import javax.inject.Inject
+import javax.inject.Named
 
-class RetrofitRepository @Inject constructor(){
-    val retrofitApi = RetrofitFactory.get().create(RetrofitApi::class.java)
+class RetrofitRepository @Inject constructor(@Named("QuoteRetrofit") private val quoteRetrofit: Retrofit){
+    val retrofitApi = quoteRetrofit.create(RetrofitApi::class.java)
     fun getQuote() = retrofitApi.getQuote(BuildConfig.apiKey, "happiness")
 }
