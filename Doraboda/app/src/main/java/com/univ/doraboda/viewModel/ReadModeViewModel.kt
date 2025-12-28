@@ -2,115 +2,112 @@ package com.univ.doraboda.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Emotion
 import com.univ.doraboda.model.Memo
 import com.univ.doraboda.repository.EmotionRepository
 import com.univ.doraboda.repository.MemoRepository
-import com.univ.doraboda.state.ReadModeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class ReadModeViewModel @Inject constructor(val memoRepository: MemoRepository, val emotionRepository: EmotionRepository): ViewModel() {
-    private val eventChannel = Channel<ReadModeIntent>()
-    val state = eventChannel.receiveAsFlow().runningFold(ReadModeState.Loading, ::reduce)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, ReadModeState.Loading)
+    data class ReadModeState(val isLoading: Boolean = true, val memo: String? = null, val emotion: String? = null, val isError: Boolean = false)
+    sealed class ReadModeIntent {
+        data class LoadMemoAndEmotion(val id: Date): ReadModeIntent()
+        data class UpdateEmotion(val id: Date, val emotion: String): ReadModeIntent()
+        data class UpdateMemo(val id: Date, val memo: String): ReadModeIntent()
+        data class InsertMemo(val memo: Memo): ReadModeIntent()
+        data class InsertEmotion(val emotion: Emotion): ReadModeIntent()
+        data class DeleteMemo(val date: Date): ReadModeIntent()
+        data class DeleteEmotion(val date: Date): ReadModeIntent()
+    }
+    sealed class ReadModeResult{
+        object Loading: ReadModeResult()
+        data class MemoAndEmotionLoaded(val memo: String?, val emotion: String?): ReadModeResult()
+        data class MemoInserted(val memo: String): ReadModeResult()
+        data class EmotionInserted(val emotion: String): ReadModeResult()
+        data class MemoUpdated(val memo: String): ReadModeResult()
+        data class EmotionUpdated(val emotion: String): ReadModeResult()
+        object MemoDeleted: ReadModeResult()
+        object EmotionDeleted: ReadModeResult()
+        data class Error(val ex: String): ReadModeResult()
+    }
+    private val _state = MutableStateFlow(ReadModeState())
+    val state: StateFlow<ReadModeState> = _state
     private val dispatchers = Dispatchers.IO
-    private var takenMemo: Memo? = null
-    private var takenEmotion: Emotion? = null
-    private var takenMemos: List<Memo>? = null
-    private var takenEmotions: List<Emotion>? = null
 
-    private fun reduce(cur: ReadModeState, intent: ReadModeIntent): ReadModeState{ //상태 변화
-        return when(intent){
-            is ReadModeIntent.InsertMemo -> ReadModeState.SuccessToInsertMemo(intent.memo.memo)
-            is ReadModeIntent.InsertEmotion -> ReadModeState.SuccessToInsertEmotion(intent.emotion.emotion)
-            is ReadModeIntent.TakeMemo -> ReadModeState.SuccessToTakeMemo(takenMemo?.memo)
-            is ReadModeIntent.TakeEmotion -> ReadModeState.SuccessToTakeEmotion(takenEmotion?.emotion)
-            is ReadModeIntent.TakeBetweenMemoAndEmotion -> ReadModeState.SuccessToTakeBetweenMemoAndEmotion(takenMemos, takenEmotions)
-            is ReadModeIntent.UpdateMemo -> ReadModeState.SuccessToUpdateMemo(intent.memo)
-            is ReadModeIntent.UpdateEmotion -> ReadModeState.SuccessToUpdateEmotion(intent.Emotion)
-            is ReadModeIntent.DeleteMemo -> ReadModeState.SuccessToDeleteMemo
-            is ReadModeIntent.DeleteEmotion -> ReadModeState.SuccessToDeleteEmotion
+    private fun reduce(result: ReadModeResult): ReadModeState{ //상태 변화
+        return when(result){
+            is ReadModeResult.Loading -> _state.value.copy(isLoading = true, isError = false)
+            is ReadModeResult.MemoAndEmotionLoaded -> _state.value.copy(isLoading = false, result.memo, result.emotion, isError = false)
+            is ReadModeResult.MemoInserted -> _state.value.copy(isLoading = false, memo = result.memo, isError = false)
+            is ReadModeResult.EmotionInserted -> _state.value.copy(isLoading = false, emotion = result.emotion, isError = false)
+            is ReadModeResult.MemoUpdated -> _state.value.copy(isLoading = false, memo = result.memo, isError = false)
+            is ReadModeResult.EmotionUpdated -> _state.value.copy(isLoading = false, emotion = result.emotion, isError = false)
+            is ReadModeResult.MemoDeleted -> _state.value.copy(isLoading = false, memo = null, isError = false)
+            is ReadModeResult.EmotionDeleted -> _state.value.copy(isLoading = false, emotion = null, isError = false)
+            is ReadModeResult.Error -> _state.value.copy(isLoading = false, isError = true)
         }
     }
 
     fun handleIntent(intent: ReadModeIntent){ //각종 비동기처리
-        viewModelScope.launch {
-        when(intent){
-            is ReadModeIntent.TakeMemo -> takeMemo(intent.id)
-            is ReadModeIntent.TakeEmotion -> takeEmotion(intent.id)
-            is ReadModeIntent.TakeBetweenMemoAndEmotion -> takeBetweenMemoAndEmotion(intent.date1, intent.date2)
-            is ReadModeIntent.InsertMemo -> insertMemo(intent.memo)
-            is ReadModeIntent.InsertEmotion -> insertEmotion(intent.emotion)
-            is ReadModeIntent.UpdateMemo -> updateMemo(intent.id, intent.memo)
-            is ReadModeIntent.UpdateEmotion -> updateEmotion(intent.id, intent.Emotion)
-            is ReadModeIntent.DeleteMemo -> deleteMemo(intent.date)
-            is ReadModeIntent.DeleteEmotion -> deleteEmotion(intent.date)
-        }
-        eventChannel.send(intent)
-        }
-    }
-
-    private suspend fun takeMemo(id: Date){
-        withContext(dispatchers) {
-            takenMemo = memoRepository.getMemo(id)
+        viewModelScope.launch(dispatchers) {
+            try {
+                when (intent) {
+                    is ReadModeIntent.LoadMemoAndEmotion -> loadMemoAndEmotion(intent.id)
+                    is ReadModeIntent.UpdateMemo -> updateMemo(intent.id, intent.memo)
+                    is ReadModeIntent.UpdateEmotion -> updateEmotion(intent.id, intent.emotion)
+                    is ReadModeIntent.InsertMemo -> insertMemo(intent.memo)
+                    is ReadModeIntent.InsertEmotion -> insertEmotion(intent.emotion)
+                    is ReadModeIntent.DeleteMemo -> deleteMemo(intent.date)
+                    is ReadModeIntent.DeleteEmotion -> deleteEmotion(intent.date)
+                }
+            } catch (e: Exception) {
+                _state.value = reduce(ReadModeResult.Error(e.toString()))
+                Timber.d("Error ${e.toString()}")
+            }
         }
     }
 
-    private suspend fun takeEmotion(id: Date){
-        withContext(dispatchers){
-            takenEmotion = emotionRepository.getEmotion(id)
-        }
+    private fun loadMemoAndEmotion(id: Date){
+        _state.value = reduce(ReadModeResult.Loading)
+        val memo = memoRepository.getMemo(id)
+        val emotion = emotionRepository.getEmotion(id)
+        _state.value = reduce(ReadModeResult.MemoAndEmotionLoaded(memo?.memo, emotion?.emotion))
     }
 
-    private suspend fun takeBetweenMemoAndEmotion(date1: Long, date2: Long){
-        withContext(dispatchers) {
-            takenMemos = memoRepository.getBetween(date1, date2)
-            takenEmotions = emotionRepository.getBetween(date1, date2)
-        }
+    private fun insertMemo(memo: Memo){
+        memoRepository.insertMemo(memo)
+        _state.value = reduce(ReadModeResult.MemoInserted(memo.memo))
     }
 
-    private suspend fun insertMemo(memo: Memo){
-        withContext(dispatchers) {
-            memoRepository.insertMemo(memo)
-        }
+    private fun insertEmotion(emotion: Emotion){
+        emotionRepository.insertEmotion(emotion)
+        _state.value = reduce(ReadModeResult.EmotionInserted(emotion.emotion))
     }
 
-    private suspend fun insertEmotion(emotion: Emotion){
-        withContext(dispatchers) {
-            emotionRepository.insertEmotion(emotion)
-        }
+    private fun updateMemo(id: Date, memo: String){
+        memoRepository.updateMemo(id, memo)
+        _state.value = reduce(ReadModeResult.MemoUpdated(memo))
     }
 
-    private suspend fun updateMemo(id: Date, memo: String){
-        withContext(dispatchers) {
-             memoRepository.updateMemo(id, memo)
-         }
+    private fun updateEmotion(id: Date, emotion: String){
+        emotionRepository.updateEmotion(id, emotion)
+        _state.value = reduce(ReadModeResult.EmotionUpdated(emotion))
     }
 
-    private suspend fun updateEmotion(id: Date, emotion: String){
-        withContext(dispatchers) {
-            emotionRepository.updateEmotion(id, emotion)
-        }
+    private fun deleteMemo(id: Date){
+        memoRepository.deleteMemo(id)
+        _state.value = reduce(ReadModeResult.MemoDeleted)
     }
 
-    private suspend fun deleteMemo(id: Date){
-        withContext(dispatchers) {
-            memoRepository.deleteMemo(id)
-        }
-    }
-
-    private suspend fun deleteEmotion(id: Date){
-        withContext(dispatchers) {
-            emotionRepository.deleteEmotion(id)
-        }
+    private fun deleteEmotion(id: Date){
+        emotionRepository.deleteEmotion(id)
+        _state.value = reduce(ReadModeResult.EmotionDeleted)
     }
 }

@@ -18,17 +18,16 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.univ.doraboda.R
 import com.univ.doraboda.databinding.DialogCalendardatepickerBinding
 import com.univ.doraboda.databinding.FragmentDataBinding
-import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Emotion
-import com.univ.doraboda.state.ReadModeState
-import com.univ.doraboda.viewModel.ReadModeViewModel
+import com.univ.doraboda.viewModel.CalendarViewModel
+import com.univ.doraboda.viewModel.CalendarViewModel.CalendarIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
 @AndroidEntryPoint
 class DataFragment : BaseFragment<FragmentDataBinding>() {
-    val viewModel: ReadModeViewModel by viewModels()
+    val viewModel: CalendarViewModel by viewModels()
     lateinit var emotionNumberList: MutableList<Int> //감정 분포도
     var maximumNumber = 0
     lateinit var selectedCalendarItem: Calendar
@@ -40,8 +39,12 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
     override fun layoutInit() {
         lifecycleScope.launch{
             viewModel.state.collect{
-                when(it){
-                    is ReadModeState.SuccessToTakeBetweenMemoAndEmotion -> { //그래프 갱신
+                if(it.isLoading){
+
+                } else {
+                    if(it.isError){
+
+                    } else {
                         val maximumEmotionIndex = getMaximumEmotionAndEmotionData(it.emotions)
                         if (maximumIndexList.size == 0){
                             binding.dataBarChartImageView.visibility = View.VISIBLE
@@ -50,12 +53,12 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                             binding.dataBarChartImageView.visibility = View.INVISIBLE
                             binding.dataPieChartImageView.visibility = View.INVISIBLE
                         }
-                            binding.dataTextView4.text = when (maximumIndexList.size) {
-                                0 -> "아직 감정 데이터가 없어요"
-                                1 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumEmotionIndex)}"
-                                2 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumIndexList.get(0))}, ${emotionTextList.get(maximumIndexList.get(1))}"
-                                else -> "다양한 감정을 골고루 느끼셨어요"
-                            }
+                        binding.dataTextView4.text = when (maximumIndexList.size) {
+                            0 -> "아직 감정 데이터가 없어요"
+                            1 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumEmotionIndex)}"
+                            2 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumIndexList.get(0))}, ${emotionTextList.get(maximumIndexList.get(1))}"
+                            else -> "다양한 감정을 골고루 느끼셨어요"
+                        }
 
                         val values = ArrayList<BarEntry>()
                         for (i in 0..<6) {
@@ -131,9 +134,6 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                             invalidate()
                         }
                         Glide.with(requireContext()).load(emotionImageList.get(maximumEmotionIndex)).into(binding.dataImageView)
-
-                    }
-                    else -> {
                     }
                 }
             }
@@ -182,7 +182,7 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
             setUsePercentValues(true)
             setEntryLabelTextSize(15f)
         }
-        viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis))
+        viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis))
         binding.dataTextView2.setOnClickListener {
             val dialogBinding = DialogCalendardatepickerBinding.inflate(layoutInflater)
             val builder = AlertDialog.Builder(requireContext())
@@ -209,7 +209,7 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                 calendar3.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), 1, 0, 0, 0)
                 val calendar4 = Calendar.getInstance()
                 calendar4.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), calendar.getActualMaximum(Calendar.DATE), 0, 0, 0)
-                viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar3.timeInMillis, calendar4.timeInMillis))
+                viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar3.timeInMillis, calendar4.timeInMillis))
                 binding.dataTextView2.text = "${dialogBinding.yearNumberPicker.value}년 ${dialogBinding.monthNumberPicker.value}월"
                 dialog.dismiss()
             }

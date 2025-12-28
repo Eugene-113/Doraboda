@@ -3,8 +3,6 @@ package com.univ.doraboda.ui
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.view.View
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,9 +10,9 @@ import com.univ.doraboda.R
 import com.univ.doraboda.model.SoundItem
 import com.univ.doraboda.adapter.SoundAdapter
 import com.univ.doraboda.databinding.FragmentSoundBinding
-import com.univ.doraboda.intent.SoundIntent
 import com.univ.doraboda.viewModel.NetworkViewModel
 import com.univ.doraboda.viewModel.SoundViewModel
+import com.univ.doraboda.viewModel.SoundViewModel.SoundIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber

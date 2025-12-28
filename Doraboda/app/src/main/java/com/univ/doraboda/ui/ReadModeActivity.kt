@@ -1,6 +1,5 @@
 package com.univ.doraboda.ui
 
-import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,10 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ActivityReadModeBinding
-import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Memo
-import com.univ.doraboda.state.ReadModeState
 import com.univ.doraboda.viewModel.ReadModeViewModel
+import com.univ.doraboda.viewModel.ReadModeViewModel.ReadModeIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -28,7 +26,7 @@ class ReadModeActivity : AppCompatActivity() {
     var thisEmo: String? = null
 
     val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        if (result.resultCode == Activity.RESULT_OK) {
+        if (result.resultCode == RESULT_OK) {
             val intent = result.data
             if(intent != null){
                 when(intent.getStringExtra("Mode")){
@@ -79,10 +77,6 @@ class ReadModeActivity : AppCompatActivity() {
 
         binding.readModeTextView1.text = "${dateArr.get(0)}년 ${dateArr.get(1)}월 ${dateArr.get(2)}일"
 
-        //val repo1 = MemoRepository()
-        //val repo2 = EmotionRepository()
-        //viewModel = ViewModelProvider(this, ReadModeViewModel.Factory(repo1, repo2)).get(ReadModeViewModel::class.java)
-
         val writeModeIntent = Intent(this, WriteModeActivity::class.java)
         binding.readModeEditImageView2.setOnClickListener {
             //메모가 존재하지 않으면 빈칸 보내기, 존재하면 메모 그대로 보내기
@@ -105,63 +99,32 @@ class ReadModeActivity : AppCompatActivity() {
 
         lifecycleScope.launch{
             viewModel.state.collect{
-                when(it){
-                    is ReadModeState.Loading -> showLoadingImage()
-                    is ReadModeState.SuccessToTakeMemo -> {
-                        //메모가 존재하지 않으면 '작성된 메모가 없습니다.', 존재하면 메모 그대로 출력
+                if(it.isLoading){
+                } else{
+                    if(it.isError){
+                    } else{
                         if(it.memo == null) binding.readModeTextView4.text = "작성된 메모가 없습니다."
                         else binding.readModeTextView4.text = it.memo
+
+                        thisEmo = it.emotion
+                        setImage(it.emotion)
+
                         isMemoExist = it.memo != null
+
                         if(memoFlag){
                             firstMemoValue = isMemoExist
                             memoFlag = false
                         }
-                    }
-                    is ReadModeState.SuccessToTakeEmotion -> {
-                        thisEmo = it.emotion
-                        setImage(it.emotion)
                         if(emotionFlag){
                             firstEmotionValue = thisEmo
                             emotionFlag = false
                         }
+                        resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
                     }
-                    is ReadModeState.SuccessToInsertMemo -> {
-                        binding.readModeTextView4.text = it.memo
-                        isMemoExist = true
-                    }
-                    is ReadModeState.SuccessToInsertEmotion -> {
-                        setImage(it.emotion)
-                        thisEmo = it.emotion
-                    }
-                    is ReadModeState.SuccessToUpdateMemo -> {
-                        isMemoExist = if(it.memo == null){
-                            binding.readModeTextView4.text = "작성된 메모가 없습니다."
-                            false
-                        }
-                        else {
-                            binding.readModeTextView4.text = it.memo
-                            true
-                        }
-                    }
-                    is ReadModeState.SuccessToUpdateEmotion -> {
-                        setImage(it.emotion)
-                        thisEmo = it.emotion
-                    }
-                    is ReadModeState.SuccessToDeleteMemo -> {
-                        binding.readModeTextView4.text = "작성된 메모가 없습니다."
-                        isMemoExist = false
-                    }
-                    is ReadModeState.SuccessToDeleteEmotion -> {
-                        setImage(null)
-                        thisEmo = null
-                    }
-                    else -> {}
                 }
-                resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
             }
         }
-        viewModel.handleIntent(ReadModeIntent.TakeMemo(nonEditedDate))
-        viewModel.handleIntent(ReadModeIntent.TakeEmotion(nonEditedDate))
+        viewModel.handleIntent(ReadModeIntent.LoadMemoAndEmotion(nonEditedDate))
     }
 
     fun showLoadingImage(){

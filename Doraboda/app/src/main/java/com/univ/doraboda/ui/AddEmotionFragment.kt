@@ -8,8 +8,8 @@ import com.univ.doraboda.model.EmotionItem
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.EmotionAdapter
 import com.univ.doraboda.databinding.FragmentAddEmotionBinding
-import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Emotion
+import com.univ.doraboda.viewModel.ReadModeViewModel.ReadModeIntent
 import com.univ.doraboda.viewModel.ReadModeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar

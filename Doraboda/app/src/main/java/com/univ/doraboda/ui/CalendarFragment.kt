@@ -19,11 +19,10 @@ import com.univ.doraboda.util.CalendarUtil
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.CalendarAdapter
 import com.univ.doraboda.databinding.FragmentCalendarBinding
-import com.univ.doraboda.intent.ReadModeIntent
 import com.univ.doraboda.model.Emotion
 import com.univ.doraboda.model.Memo
-import com.univ.doraboda.state.ReadModeState
-import com.univ.doraboda.viewModel.ReadModeViewModel
+import com.univ.doraboda.viewModel.CalendarViewModel
+import com.univ.doraboda.viewModel.CalendarViewModel.CalendarIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,7 +37,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     var calendarAdapter: CalendarAdapter? = null
     lateinit var calendarUtil: CalendarUtil
     lateinit var application: android.app.Application
-    val viewModel: ReadModeViewModel by viewModels()
+    val viewModel: CalendarViewModel by viewModels()
 
     val startForResult: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         Timber.d("startforresult")
@@ -55,7 +54,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                         val calendar1 = getStartTime(newList)
                         val calendar2 = getEndTime(newList)
                         list = newList
-                        viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청
+                        viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청
                         setDateAndTextView(thisCalendar)
                     }
                 }
@@ -114,17 +113,17 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
 
         lifecycleScope.launch{
             viewModel.state.collect{
-                when(it){
-                    is ReadModeState.SuccessToTakeBetweenMemoAndEmotion -> {
+                if(it.isLoading){
+                } else {
+                    if(it.isError){}
+                    else{
                         submitAdapterList(list, it.memos, it.emotions)
-                    }
-                    else -> {
                     }
                 }
             }
         }
 
-        viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청 (최초)
+        viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청 (최초)
 
         binding.dateTextView.setOnClickListener {
             if(isInit){
@@ -154,7 +153,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                     val calendar3 = getStartTime(changedList)
                     val calendar4 = getEndTime(changedList)
                     list = changedList
-                    viewModel.handleIntent(ReadModeIntent.TakeBetweenMemoAndEmotion(calendar3.timeInMillis, calendar4.timeInMillis)) //아이템배치 변경요청
+                    viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar3.timeInMillis, calendar4.timeInMillis)) //아이템배치 변경요청
                     setDateAndTextView(changedCalendar)
                     dialog.dismiss()
                 }

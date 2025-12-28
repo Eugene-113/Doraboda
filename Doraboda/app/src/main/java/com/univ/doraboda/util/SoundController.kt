@@ -2,6 +2,8 @@ package com.univ.doraboda.util
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
@@ -9,6 +11,8 @@ import com.univ.doraboda.Service.SoundService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,8 +20,10 @@ import javax.inject.Singleton
 
 @Singleton
 class SoundController @Inject constructor(@ApplicationContext val context: Context) {
-    var controller: MediaController? = null
-    var controllerFuture: ListenableFuture<MediaController>? = null
+    private val _state = MutableStateFlow(Player.STATE_IDLE)
+    val state: StateFlow<Int> = _state
+    private var controller: MediaController? = null
+    private var controllerFuture: ListenableFuture<MediaController>? = null
     private val scope = CoroutineScope(Dispatchers.Main.immediate)
 
     suspend fun connect(){ //서비스와 컨트롤러 연결
@@ -31,6 +37,16 @@ class SoundController @Inject constructor(@ApplicationContext val context: Conte
             }
         ).buildAsync()
         controller = controllerFuture!!.await()
+        controller!!.addListener(
+            object : Player.Listener {
+                override fun onPlaybackStateChanged(playbackState: Int) {
+                    _state.value = playbackState
+                }
+
+                override fun onPlayerError(error: PlaybackException) {
+                    _state.value = error.errorCode
+                }
+            })
         prepare()
     }
 
