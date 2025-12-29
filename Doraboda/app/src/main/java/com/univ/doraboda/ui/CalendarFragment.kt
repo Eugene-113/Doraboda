@@ -10,7 +10,9 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -112,12 +114,14 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         isInit = true
 
         lifecycleScope.launch{
-            viewModel.state.collect{
-                if(it.isLoading){
-                } else {
-                    if(it.isError){}
-                    else{
-                        submitAdapterList(list, it.memos, it.emotions)
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.state.collect{
+                    if(it.isLoading){
+                    } else {
+                        if(it.isError){}
+                        else{
+                            submitAdapterList(list, it.memos, it.emotions)
+                        }
                     }
                 }
             }

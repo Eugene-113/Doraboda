@@ -4,7 +4,9 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.univ.doraboda.R
 import com.univ.doraboda.model.SoundItem
@@ -31,14 +33,16 @@ class SoundFragment : BaseFragment<FragmentSoundBinding>() {
         val list = listOf(SoundItem("rain", R.raw.sleepy_rain, "슬픈 선율", R.drawable.rain, 0), SoundItem("birds", R.raw.birds, "부드러운 선율", R.drawable.sunflower, 1))
         val manager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
         lifecycleScope.launch {
-            quoteViewModel.state.collect {
-                if(it.isError){
-                    Timber.d("명언 데이터 가져오지 않았거나 문제가 생김")
-                } else {
-                    if(it.isLoading){
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                quoteViewModel.state.collect {
+                    if(it.isError){
+                        Timber.d("명언 데이터 가져오지 않았거나 문제가 생김")
                     } else {
-                        binding.readModeTextView3.text = "\"${it.quote}\" -${it.author}-"
-                        binding.soundCardView2.visibility = View.VISIBLE
+                        if(it.isLoading){
+                        } else {
+                            binding.readModeTextView3.text = "\"${it.quote}\" -${it.author}-"
+                            binding.soundCardView2.visibility = View.VISIBLE
+                        }
                     }
                 }
             }

@@ -6,7 +6,9 @@ import android.os.Bundle
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ActivityReadModeBinding
@@ -98,28 +100,30 @@ class ReadModeActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch{
-            viewModel.state.collect{
-                if(it.isLoading){
-                } else{
-                    if(it.isError){
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.state.collect{
+                    if(it.isLoading){
                     } else{
-                        if(it.memo == null) binding.readModeTextView4.text = "작성된 메모가 없습니다."
-                        else binding.readModeTextView4.text = it.memo
+                        if(it.isError){
+                        } else{
+                            if(it.memo == null) binding.readModeTextView4.text = "작성된 메모가 없습니다."
+                            else binding.readModeTextView4.text = it.memo
 
-                        thisEmo = it.emotion
-                        setImage(it.emotion)
+                            thisEmo = it.emotion
+                            setImage(it.emotion)
 
-                        isMemoExist = it.memo != null
+                            isMemoExist = it.memo != null
 
-                        if(memoFlag){
-                            firstMemoValue = isMemoExist
-                            memoFlag = false
+                            if(memoFlag){
+                                firstMemoValue = isMemoExist
+                                memoFlag = false
+                            }
+                            if(emotionFlag){
+                                firstEmotionValue = thisEmo
+                                emotionFlag = false
+                            }
+                            resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
                         }
-                        if(emotionFlag){
-                            firstEmotionValue = thisEmo
-                            emotionFlag = false
-                        }
-                        resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
                     }
                 }
             }

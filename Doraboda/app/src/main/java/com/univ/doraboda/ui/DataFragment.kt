@@ -4,7 +4,9 @@ import android.app.AlertDialog
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
@@ -38,102 +40,104 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
 
     override fun layoutInit() {
         lifecycleScope.launch{
-            viewModel.state.collect{
-                if(it.isLoading){
-
-                } else {
-                    if(it.isError){
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.state.collect{
+                    if(it.isLoading){
 
                     } else {
-                        val maximumEmotionIndex = getMaximumEmotionAndEmotionData(it.emotions)
-                        if (maximumIndexList.size == 0){
-                            binding.dataBarChartImageView.visibility = View.VISIBLE
-                            binding.dataPieChartImageView.visibility = View.VISIBLE
+                        if(it.isError){
+
                         } else {
-                            binding.dataBarChartImageView.visibility = View.INVISIBLE
-                            binding.dataPieChartImageView.visibility = View.INVISIBLE
-                        }
-                        binding.dataTextView4.text = when (maximumIndexList.size) {
-                            0 -> "아직 감정 데이터가 없어요"
-                            1 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumEmotionIndex)}"
-                            2 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumIndexList.get(0))}, ${emotionTextList.get(maximumIndexList.get(1))}"
-                            else -> "다양한 감정을 골고루 느끼셨어요"
-                        }
-
-                        val values = ArrayList<BarEntry>()
-                        for (i in 0..<6) {
-                            values.add(
-                                BarEntry(
-                                    (5 - i).toFloat(),
-                                    emotionNumberList.get(i).toFloat()
-                                )
-                            )
-                        }
-                        val dataSet = BarDataSet(values, "")
-                        dataSet.setValueTextSize(15f)
-                        dataSet.valueFormatter = object : ValueFormatter() {
-                            override fun getBarLabel(barEntry: BarEntry): String {
-                                return "${barEntry.y.toInt()}"
+                            val maximumEmotionIndex = getMaximumEmotionAndEmotionData(it.emotions)
+                            if (maximumIndexList.size == 0){
+                                binding.dataBarChartImageView.visibility = View.VISIBLE
+                                binding.dataPieChartImageView.visibility = View.VISIBLE
+                            } else {
+                                binding.dataBarChartImageView.visibility = View.INVISIBLE
+                                binding.dataPieChartImageView.visibility = View.INVISIBLE
                             }
-                        }
-                        val colorList = mutableListOf<Int>()
-                        colorList.add(
-                            0,
-                            ContextCompat.getColor(requireContext(), R.color.lightGrey)
-                        )
-                        colorList.add(1, ContextCompat.getColor(requireContext(), R.color.blue))
-                        colorList.add(2, ContextCompat.getColor(requireContext(), R.color.orange))
-                        colorList.add(3, ContextCompat.getColor(requireContext(), R.color.red))
-                        colorList.add(
-                            4,
-                            ContextCompat.getColor(requireContext(), R.color.purple_200)
-                        )
-                        colorList.add(
-                            5,
-                            ContextCompat.getColor(requireContext(), R.color.mainYellow)
-                        )
+                            binding.dataTextView4.text = when (maximumIndexList.size) {
+                                0 -> "아직 감정 데이터가 없어요"
+                                1 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumEmotionIndex)}"
+                                2 -> "이번달, 가장 많이 느낀 감정은 ${emotionTextList.get(maximumIndexList.get(0))}, ${emotionTextList.get(maximumIndexList.get(1))}"
+                                else -> "다양한 감정을 골고루 느끼셨어요"
+                            }
 
-                        dataSet.setColors(colorList)
-                        val barData = BarData(dataSet)
-
-                        binding.dataBarChart.apply {
-                            axisLeft.axisMaximum = maximumNumber.toFloat()
-                            data = barData
-                            invalidate()
-                        }
-
-                        val values2 = ArrayList<PieEntry>()
-                        for (i in 0..<6) {
-                            values2.add(
-                                PieEntry(
-                                    emotionNumberList.get(i).toFloat(),
-                                    if (emotionNumberList.get(i) != 0) emotionTextList.get(i) else ""
+                            val values = ArrayList<BarEntry>()
+                            for (i in 0..<6) {
+                                values.add(
+                                    BarEntry(
+                                        (5 - i).toFloat(),
+                                        emotionNumberList.get(i).toFloat()
+                                    )
                                 )
-                            )
-                        }
-                        val dataSet2 = PieDataSet(values2, "").apply {
-                            setColors(colorList)
-                        }
-                        val pieData = PieData(dataSet2).apply {
-                            setValueFormatter(object : ValueFormatter() {
-                                override fun getFormattedValue(value: Float): String? {
-                                    return if (value == 0f) "" else "${value.toInt()}%"
+                            }
+                            val dataSet = BarDataSet(values, "")
+                            dataSet.setValueTextSize(15f)
+                            dataSet.valueFormatter = object : ValueFormatter() {
+                                override fun getBarLabel(barEntry: BarEntry): String {
+                                    return "${barEntry.y.toInt()}"
                                 }
-                            })
-                            setValueTextSize(20f)
-                            setValueTextColor(
-                                ContextCompat.getColor(
-                                    requireContext(),
-                                    R.color.white
-                                )
+                            }
+                            val colorList = mutableListOf<Int>()
+                            colorList.add(
+                                0,
+                                ContextCompat.getColor(requireContext(), R.color.lightGrey)
                             )
-                        }
+                            colorList.add(1, ContextCompat.getColor(requireContext(), R.color.blue))
+                            colorList.add(2, ContextCompat.getColor(requireContext(), R.color.orange))
+                            colorList.add(3, ContextCompat.getColor(requireContext(), R.color.red))
+                            colorList.add(
+                                4,
+                                ContextCompat.getColor(requireContext(), R.color.purple_200)
+                            )
+                            colorList.add(
+                                5,
+                                ContextCompat.getColor(requireContext(), R.color.mainYellow)
+                            )
 
-                        binding.dataPieChart.apply {
-                            data = pieData
-                            invalidate()
+                            dataSet.setColors(colorList)
+                            val barData = BarData(dataSet)
+
+                            binding.dataBarChart.apply {
+                                axisLeft.axisMaximum = maximumNumber.toFloat()
+                                data = barData
+                                invalidate()
+                            }
+
+                            val values2 = ArrayList<PieEntry>()
+                            for (i in 0..<6) {
+                                values2.add(
+                                    PieEntry(
+                                        emotionNumberList.get(i).toFloat(),
+                                        if (emotionNumberList.get(i) != 0) emotionTextList.get(i) else ""
+                                    )
+                                )
+                            }
+                            val dataSet2 = PieDataSet(values2, "").apply {
+                                setColors(colorList)
+                            }
+                            val pieData = PieData(dataSet2).apply {
+                                setValueFormatter(object : ValueFormatter() {
+                                    override fun getFormattedValue(value: Float): String? {
+                                        return if (value == 0f) "" else "${value.toInt()}%"
+                                    }
+                                })
+                                setValueTextSize(20f)
+                                setValueTextColor(
+                                    ContextCompat.getColor(
+                                        requireContext(),
+                                        R.color.white
+                                    )
+                                )
+                            }
+
+                            binding.dataPieChart.apply {
+                                data = pieData
+                                invalidate()
+                            }
+                            Glide.with(requireContext()).load(emotionImageList.get(maximumEmotionIndex)).into(binding.dataImageView)
                         }
-                        Glide.with(requireContext()).load(emotionImageList.get(maximumEmotionIndex)).into(binding.dataImageView)
                     }
                 }
             }
