@@ -55,9 +55,14 @@ class DayAdapter(val context: Context, val yearAndMonth: String, val startForRes
                 val drawable = ContextCompat.getDrawable(context, image)
                 Glide.with(context).load(drawable).into(binding.dayItemImage)
             }
+            val dateArr = yearAndMonth.split("/")
+            val thisCalendar = Calendar.getInstance()
+            thisCalendar.set(dateArr.get(0).toInt(), dateArr.get(1).toInt()-1, day, 0, 0, 0)
+            thisCalendar.set(Calendar.MILLISECOND, 0)
             if(yearAndMonth == "${calendar.get(Calendar.YEAR)}/${calendar.get(Calendar.MONTH)+1}/" && day == calendar.get(Calendar.DAY_OF_MONTH)) binding.dayItemLayout.setBackgroundColor(Color.parseColor("#FAF4C0"))
             binding.dayItemText.text =
                 if(day != 0){
+                    if(calendar.timeInMillis >= thisCalendar.timeInMillis)
                     binding.dayItemLayout.setOnClickListener {
                         val intent = Intent(context, ReadModeActivity::class.java)
                         intent.putExtra("Date", "${yearAndMonth}${day}")
