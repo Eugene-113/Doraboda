@@ -20,6 +20,7 @@ import com.univ.doraboda.model.CalendarItem
 import com.univ.doraboda.util.CalendarUtil
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.CalendarAdapter
+import com.univ.doraboda.databinding.DialogCalendardatepickerBinding
 import com.univ.doraboda.databinding.FragmentCalendarBinding
 import com.univ.doraboda.model.Emotion
 import com.univ.doraboda.model.Memo
@@ -116,6 +117,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.state.collect{
+                    Timber.d("state changed ${it}")
                     if(it.isLoading){
                     } else {
                         if(it.isError){}
@@ -131,28 +133,28 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
 
         binding.dateTextView.setOnClickListener {
             if(isInit){
-                val calendarDatePickerLayout = layoutInflater.inflate(R.layout.dialog_calendardatepicker, null)
-                val builder = AlertDialog.Builder(context)
-                builder.setView(calendarDatePickerLayout)
+                val dialogBinding = DialogCalendardatepickerBinding.inflate(layoutInflater)
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setView(dialogBinding.root)
                 val dialog = builder.create()
-                val yearNumberPicker = calendarDatePickerLayout.findViewById<NumberPicker>(R.id.yearNumberPicker)
-                val monthNumberPicker  = calendarDatePickerLayout.findViewById<NumberPicker>(R.id.monthNumberPicker)
-                val cancelButton = calendarDatePickerLayout.findViewById<Button>(R.id.calendarDatePickerCancelButton)
-                val doneButton = calendarDatePickerLayout.findViewById<Button>(R.id.calendarDatePickerDoneButton)
-                yearNumberPicker.minValue = 2000
-                yearNumberPicker.maxValue = 3000
-                monthNumberPicker.minValue = 1
-                monthNumberPicker.maxValue = 12
-                yearNumberPicker.value = selectedCalendarItem.get(Calendar.YEAR)
-                monthNumberPicker.value = selectedCalendarItem.get(Calendar.MONTH) + 1
+                dialogBinding.yearNumberPicker.apply {
+                    minValue = 2000
+                    maxValue = 3000
+                    value = selectedCalendarItem.get(Calendar.YEAR)
+                }
+                dialogBinding.monthNumberPicker.apply {
+                    minValue = 1
+                    maxValue = 12
+                    value = selectedCalendarItem.get(Calendar.MONTH) + 1
+                }
                 dialog.show()
-                cancelButton.setOnClickListener {
+                dialogBinding.calendarDatePickerCancelButton.setOnClickListener {
                     dialog.dismiss()
                 }
-                doneButton.setOnClickListener {
+                dialogBinding.calendarDatePickerDoneButton.setOnClickListener {
                     val changedCalendar = Calendar.getInstance()
-                    changedCalendar.set(Calendar.YEAR, yearNumberPicker.value)
-                    changedCalendar.set(Calendar.MONTH, monthNumberPicker.value - 1)
+                    changedCalendar.set(Calendar.YEAR, dialogBinding.yearNumberPicker.value)
+                    changedCalendar.set(Calendar.MONTH, dialogBinding.monthNumberPicker.value - 1)
                     val changedList = calendarUtil.getDays(changedCalendar)
                     val calendar3 = getStartTime(changedList)
                     val calendar4 = getEndTime(changedList)
