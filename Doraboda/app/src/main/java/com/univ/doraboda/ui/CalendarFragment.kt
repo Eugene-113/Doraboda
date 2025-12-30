@@ -36,7 +36,7 @@ import kotlin.getValue
 class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     lateinit var calendarItem: Calendar //스크롤 시의 기준점이다
     //CalendarUtil을 통해 불러온 날짜 List의 가운데 position에 있는 calendarItem (즉, CalendarUtil의 인자에 들어간 Calendar의 년월 데이터를 담는다)
-    val middlePositionOfItem = 50 //날짜 List의 가운데 position, 기준점 position
+    var middlePositionOfItem = 50 //날짜 List의 가운데 position, 기준점 position
     var calendarAdapter: CalendarAdapter? = null
     lateinit var calendarUtil: CalendarUtil
     lateinit var application: android.app.Application
@@ -54,6 +54,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                         val thisCalendar = Calendar.getInstance()
                         thisCalendar.set(dayInfos.get(0).toInt(), dayInfos.get(1).toInt()-1, dayInfos.get(2).toInt(), 0, 0, 0)
                         val newList = calendarUtil.getDays(thisCalendar)
+                        middlePositionOfItem = calendarUtil.middlePoint
                         val calendar1 = getStartTime(newList)
                         val calendar2 = getEndTime(newList)
                         list = newList
@@ -82,6 +83,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         var isInit: Boolean
         val calendar = Calendar.getInstance()
         list = calendarUtil.getDays(calendar)
+        middlePositionOfItem = calendarUtil.middlePoint
 
         val calendar1 = getStartTime(list)
         val calendar2 = getEndTime(list)
@@ -155,6 +157,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                     changedCalendar.set(Calendar.YEAR, dialogBinding.yearNumberPicker.value)
                     changedCalendar.set(Calendar.MONTH, dialogBinding.monthNumberPicker.value - 1)
                     val changedList = calendarUtil.getDays(changedCalendar)
+                    middlePositionOfItem = calendarUtil.middlePoint
                     val calendar3 = getStartTime(changedList)
                     val calendar4 = getEndTime(changedList)
                     list = changedList
