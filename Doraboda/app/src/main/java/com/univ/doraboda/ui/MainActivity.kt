@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.homenavfragment) as NavHostFragment
         val navController = navHostFragment.navController
+        binding.homeBottomNavigation.itemIconTintList = null
         binding.homeBottomNavigation.selectedItemId = R.id.calendarItem
         binding.homeBottomNavigation.setOnItemSelectedListener {item ->
             val navOptions = NavOptions.Builder()

@@ -22,9 +22,9 @@ class AddEmotionFragment : BaseBottomSheetFragment<FragmentAddEmotionBinding>() 
     override fun layoutId(): Int = R.layout.fragment_add_emotion
 
     override fun layoutInit(){
-        val emotionList = listOf(EmotionItem("normal", R.drawable.normal), EmotionItem("joyful", R.drawable.joyful),
-            EmotionItem("happy", R.drawable.happy), EmotionItem("sad", R.drawable.sad), EmotionItem("angry", R.drawable.angry),
-            EmotionItem("confused", R.drawable.confused), EmotionItem(null, R.drawable.icon_delete))
+        val emotionList = listOf(EmotionItem("normal", R.drawable.icon_normal), EmotionItem("joyful", R.drawable.icon_joy),
+            EmotionItem("happy", R.drawable.icon_happy), EmotionItem("sad", R.drawable.icon_sad), EmotionItem("angry", R.drawable.icon_angry),
+            EmotionItem("confused", R.drawable.icon_confused), EmotionItem(null, R.drawable.icon_empty))
 
         bundle = arguments
 

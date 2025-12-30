@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/soundItem"
-        android:icon="@drawable/icon_sound"
+        android:icon="@drawable/selector_nav_music"
         android:title=""
         />
     <item
         android:id="@+id/calendarItem"
-        android:icon="@drawable/icon_calendar"
+        android:icon="@drawable/selector_nav_face"
         android:title=""
         />
     <item
         android:id="@+id/dataItem"
-        android:icon="@drawable/icon_data"
+        android:icon="@drawable/selector_nav_graph"
         android:title=""
         />
 </menu>

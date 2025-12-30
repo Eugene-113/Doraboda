@@ -33,7 +33,7 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
     lateinit var emotionNumberList: MutableList<Int> //감정 분포도
     var maximumNumber = 0
     lateinit var selectedCalendarItem: Calendar
-    val emotionImageList = listOf(R.drawable.normal, R.drawable.sad, R.drawable.joyful, R.drawable.angry, R.drawable.confused, R.drawable.happy, R.drawable.icon_quetionmark)
+    val emotionImageList = listOf(R.drawable.icon_normal, R.drawable.icon_sad, R.drawable.icon_joy, R.drawable.icon_angry, R.drawable.icon_confused, R.drawable.icon_happy, R.drawable.icon_quetionmark)
     val emotionTextList = listOf("무감각", "슬픔", "즐거움", "분노", "혼란", "행복")
     var maximumIndexList = mutableListOf<Int>()
     override fun layoutId() = R.layout.fragment_data
@@ -136,7 +136,13 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                                 data = pieData
                                 invalidate()
                             }
-                            Glide.with(requireContext()).load(emotionImageList.get(maximumEmotionIndex)).into(binding.dataImageView)
+                            val glideImage =
+                            if(maximumIndexList.size > 1) {
+                                R.drawable.icon_var
+                            } else{
+                                emotionImageList.get(maximumEmotionIndex)
+                            }
+                            Glide.with(requireContext()).load(glideImage).into(binding.dataImageView)
                         }
                     }
                 }

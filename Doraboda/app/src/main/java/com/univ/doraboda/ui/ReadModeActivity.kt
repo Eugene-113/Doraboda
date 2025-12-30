@@ -136,13 +136,13 @@ class ReadModeActivity : AppCompatActivity() {
 
     fun setImage(emotion: String?){
         val image = when(emotion){
-            "normal" -> R.drawable.normal
-            "sad" -> R.drawable.sad
-            "joyful" -> R.drawable.joyful
-            "angry" -> R.drawable.angry
-            "confused" -> R.drawable.confused
-            "happy" -> R.drawable.happy
-            else -> R.drawable.icon_add
+            "normal" -> R.drawable.icon_normal
+            "sad" -> R.drawable.icon_sad
+            "joyful" -> R.drawable.icon_joy
+            "angry" -> R.drawable.icon_angry
+            "confused" -> R.drawable.icon_confused
+            "happy" -> R.drawable.icon_happy
+            else -> R.drawable.icon_empty
         }
         Glide.with(baseContext).load(image).into(binding.readModeEditImageView1)
     }

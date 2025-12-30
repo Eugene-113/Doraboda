@@ -21,7 +21,8 @@
         android:id="@+id/homeBottomNavigation"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
+        app:itemIconSize="50dp"
         app:menu="@menu/menu_home"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

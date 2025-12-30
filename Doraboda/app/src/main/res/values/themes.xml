@@ -17,6 +17,7 @@
         <item name="bottomSheetDialogTheme">@style/BottomSheetTheme</item>
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:colorBackground">@color/bgYellow</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="BottomSheetTheme" parent="Theme.Design.Light.BottomSheetDialog">
