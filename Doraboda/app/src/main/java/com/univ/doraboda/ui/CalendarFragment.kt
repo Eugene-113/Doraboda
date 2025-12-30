@@ -117,7 +117,6 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.state.collect{
-                    Timber.d("state changed ${it}")
                     if(it.isLoading){
                     } else {
                         if(it.isError){}

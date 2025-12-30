@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(val memoRepository: MemoRepository, val emotionRepository: EmotionRepository): ViewModel() {
-    data class CalendarState(val isLoading: Boolean = true, val memos: List<Memo>? = null, val emotions: List<Emotion>? = null, val isError: Boolean = false)
+    data class CalendarState(val isLoading: Boolean = true, val memos: List<Memo>? = null, val emotions: List<Emotion>? = null, val isError: Boolean = false, val updateID: Int = 0)
     sealed class CalendarIntent {
         data class LoadBetweenMemoAndEmotion(val date1: Long, val date2: Long): CalendarIntent()
     }
@@ -32,7 +32,7 @@ class CalendarViewModel @Inject constructor(val memoRepository: MemoRepository, 
     private fun reduce(result: CalendarResult): CalendarState{
         return when(result){
             is CalendarResult.Loading -> _state.value.copy(isLoading = true, isError = false)
-            is CalendarResult.MemosAndEmotionsLoaded -> _state.value.copy(isLoading = false, memos = result.memos, emotions = result.emotions, isError = false)
+            is CalendarResult.MemosAndEmotionsLoaded -> _state.value.copy(isLoading = false, memos = result.memos, emotions = result.emotions, isError = false, updateID = _state.value.updateID + 1)
             is CalendarResult.Error -> _state.value.copy(isLoading = false, isError = true)
         }
     }
@@ -41,7 +41,7 @@ class CalendarViewModel @Inject constructor(val memoRepository: MemoRepository, 
         viewModelScope.launch(dispatchers){
             try{
                 when(intent){
-                    is CalendarIntent.LoadBetweenMemoAndEmotion -> takeBetweenMemoAndEmotion(intent.date1, intent.date2)
+                    is CalendarIntent.LoadBetweenMemoAndEmotion -> loadBetweenMemoAndEmotion(intent.date1, intent.date2)
                 }
             }
             catch(e: Exception){
@@ -50,7 +50,7 @@ class CalendarViewModel @Inject constructor(val memoRepository: MemoRepository, 
         }
     }
 
-    private fun takeBetweenMemoAndEmotion(date1: Long, date2: Long){
+    private fun loadBetweenMemoAndEmotion(date1: Long, date2: Long){
         _state.value = reduce(CalendarResult.Loading)
         val memos = memoRepository.getBetween(date1, date2)
         val emotions = emotionRepository.getBetween(date1, date2)
