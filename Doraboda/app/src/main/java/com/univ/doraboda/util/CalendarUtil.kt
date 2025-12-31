@@ -2,6 +2,7 @@ package com.univ.doraboda.util
 
 import com.univ.doraboda.model.CalendarItem
 import com.univ.doraboda.model.DayItem
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
@@ -20,6 +21,7 @@ class CalendarUtil {
         if(monthsBetween1 < 50){
             middlePoint = monthsBetween1
             startNum = -monthsBetween1
+            endNum = 50
         } else{
             middlePoint = 50
             startNum = -50

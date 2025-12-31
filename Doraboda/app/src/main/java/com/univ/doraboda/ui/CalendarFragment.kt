@@ -53,6 +53,8 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                     if(dayInfos.get(3) == "true" || dayInfos.get(4) == "true"){
                         val thisCalendar = Calendar.getInstance()
                         thisCalendar.set(dayInfos.get(0).toInt(), dayInfos.get(1).toInt()-1, dayInfos.get(2).toInt(), 0, 0, 0)
+                        thisCalendar.set(Calendar.MILLISECOND, 0)
+                        selectedCalendarItem = thisCalendar
                         val newList = calendarUtil.getDays(thisCalendar)
                         middlePositionOfItem = calendarUtil.middlePoint
                         val calendar1 = getStartTime(newList)
@@ -67,12 +69,12 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     }
 
     lateinit var list: ArrayList<CalendarItem> //지금 참고하는 캘린더 리스트
+    var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
 
     override fun layoutId(): Int = R.layout.fragment_calendar
 
     override fun layoutInit(){
         calendarUtil = CalendarUtil()
-        var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
         //지금 화면에 표시되는 년월을 다이얼로그에 전달할 목적으로 사용된다
         val intent = Intent(activity, SettingsActivity::class.java)
         binding.calendarSettingsImageView.setOnClickListener {
@@ -156,8 +158,9 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                 }
                 dialogBinding.calendarDatePickerDoneButton.setOnClickListener {
                     val changedCalendar = Calendar.getInstance()
-                    changedCalendar.set(Calendar.YEAR, dialogBinding.yearNumberPicker.value)
-                    changedCalendar.set(Calendar.MONTH, dialogBinding.monthNumberPicker.value - 1)
+                    changedCalendar.set(dialogBinding.yearNumberPicker.value, dialogBinding.monthNumberPicker.value - 1, 1, 0, 0, 0)
+                    changedCalendar.set(Calendar.MILLISECOND, 0)
+                    selectedCalendarItem = changedCalendar
                     val changedList = calendarUtil.getDays(changedCalendar)
                     middlePositionOfItem = calendarUtil.middlePoint
                     val calendar3 = getStartTime(changedList)
