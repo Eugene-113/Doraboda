@@ -3,15 +3,19 @@ package com.univ.doraboda.ui
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.univ.doraboda.model.EmotionItem
 import com.univ.doraboda.R
 import com.univ.doraboda.adapter.EmotionAdapter
 import com.univ.doraboda.databinding.FragmentAddEmotionBinding
 import com.univ.doraboda.model.Emotion
+import com.univ.doraboda.viewModel.AddEmotionViewModel
+import com.univ.doraboda.viewModel.AddEmotionViewModel.AddEmotionIntent
 import com.univ.doraboda.viewModel.ReadModeViewModel.ReadModeIntent
-import com.univ.doraboda.viewModel.ReadModeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 @AndroidEntryPoint
@@ -22,6 +26,7 @@ class AddEmotionFragment : BaseBottomSheetFragment<FragmentAddEmotionBinding>() 
     override fun layoutId(): Int = R.layout.fragment_add_emotion
 
     override fun layoutInit(){
+
         val emotionList = listOf(EmotionItem("normal", R.drawable.icon_normal), EmotionItem("joyful", R.drawable.icon_joy),
             EmotionItem("happy", R.drawable.icon_happy), EmotionItem("sad", R.drawable.icon_sad), EmotionItem("angry", R.drawable.icon_angry),
             EmotionItem("confused", R.drawable.icon_confused), EmotionItem(null, R.drawable.icon_empty))
@@ -45,11 +50,11 @@ class AddEmotionFragment : BaseBottomSheetFragment<FragmentAddEmotionBinding>() 
             dateCalendar.set(dateArr.get(0).toInt(), dateArr.get(1).toInt()-1, dateArr.get(2).toInt(), 0, 0, 0)
             dateCalendar.set(Calendar.MILLISECOND, 0)
             val nonEditedDate = dateCalendar.time
-            val viewModel: ReadModeViewModel by activityViewModels()
-            if(emotionAdapter.thisEmotion == null) viewModel.handleIntent(ReadModeIntent.DeleteEmotion(nonEditedDate))
+            val viewModel: AddEmotionViewModel by viewModels()
+            if(emotionAdapter.thisEmotion == null) viewModel.handleIntent(AddEmotionIntent.DeleteEmotion(nonEditedDate))
             else {
-                if(emotion != null) viewModel.handleIntent(ReadModeIntent.UpdateEmotion(nonEditedDate, emotionAdapter.thisEmotion!!))
-                else viewModel.handleIntent(ReadModeIntent.InsertEmotion(Emotion(nonEditedDate, emotionAdapter.thisEmotion!!)))
+                if(emotion != null) viewModel.handleIntent(AddEmotionIntent.UpdateEmotion(nonEditedDate, emotionAdapter.thisEmotion!!))
+                else viewModel.handleIntent(AddEmotionIntent.InsertEmotion(Emotion(nonEditedDate, emotionAdapter.thisEmotion!!)))
             }
         }
         super.onDestroy()

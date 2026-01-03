@@ -3,6 +3,7 @@ package com.univ.doraboda.ui
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +13,6 @@ import com.univ.doraboda.R
 import com.univ.doraboda.model.SoundItem
 import com.univ.doraboda.adapter.SoundAdapter
 import com.univ.doraboda.databinding.FragmentSoundBinding
-import com.univ.doraboda.viewModel.NetworkViewModel
 import com.univ.doraboda.viewModel.SoundViewModel
 import com.univ.doraboda.viewModel.SoundViewModel.SoundIntent
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,35 +22,45 @@ import kotlin.getValue
 
 @AndroidEntryPoint
 class SoundFragment : BaseFragment<FragmentSoundBinding>() {
-
+    var flag = true
     lateinit var soundAdapter: SoundAdapter
-    val soundViewModel: SoundViewModel by viewModels()
-    val quoteViewModel: NetworkViewModel by viewModels()
+    val viewModel: SoundViewModel by viewModels()
 
     override fun layoutId(): Int = R.layout.fragment_sound
 
     override fun layoutInit(){
         val list = listOf(SoundItem("rain", R.raw.sleepy_rain, "슬픈 선율", R.drawable.rain, 0), SoundItem("birds", R.raw.birds, "부드러운 선율", R.drawable.sunflower, 1))
         val manager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                quoteViewModel.state.collect {
-                    if(it.isError){
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.state.collect {
+                    if(it.isNetworkError){
                         Timber.d("명언 데이터 가져오지 않았거나 문제가 생김")
-                    } else {
+                    } else{
                         if(it.isLoading){
                         } else {
-                            binding.readModeTextView3.text = "\"${it.quote}\" -${it.author}-"
-                            binding.soundCardView2.visibility = View.VISIBLE
+                            if(it.quote != "" && flag){
+                                binding.readModeTextView3.text = "\"${it.quote}\" -${it.author}-"
+                                binding.soundCardView2.visibility = View.VISIBLE
+                                flag = false
+                            }
                         }
                     }
                 }
             }
         }
-        if (isNetworkAvailable()) quoteViewModel.handleIntent(NetworkViewModel.NetworkIntent.GetQuote)
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.errorEvents.collect{
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        if(isNetworkAvailable()) viewModel.handleIntent(SoundIntent.GetQuote)
 
         soundAdapter = SoundAdapter{ item ->
-            soundViewModel.handleIntent(SoundIntent.SeekAndPlayMusic(item.position))
+            viewModel.handleIntent(SoundIntent.SeekAndPlayMusic(item.position))
         }
         binding.soundRecyclerView.apply {
             layoutManager = manager
@@ -68,7 +78,7 @@ class SoundFragment : BaseFragment<FragmentSoundBinding>() {
     }
 
     override fun onDestroy() {
-        soundViewModel.handleIntent(SoundIntent.ReleaseIfConnected)
+        viewModel.handleIntent(SoundIntent.ReleaseIfConnected)
         super.onDestroy()
     }
 }

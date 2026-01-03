@@ -13,15 +13,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SoundController @Inject constructor(@ApplicationContext val context: Context) {
+class SoundController @Inject constructor(@ApplicationContext private val context: Context) {
     private val _state = MutableStateFlow(Player.STATE_IDLE)
-    val state: StateFlow<Int> = _state
+    val state: StateFlow<Int> = _state.asStateFlow()
     private var controller: MediaController? = null
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private val scope = CoroutineScope(Dispatchers.Main.immediate)

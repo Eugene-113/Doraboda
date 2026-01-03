@@ -18,6 +18,7 @@ import com.univ.doraboda.databinding.FragmentCalendarBinding
 import com.univ.doraboda.model.Emotion
 import com.univ.doraboda.model.Memo
 import com.univ.doraboda.viewModel.CalendarViewModel
+import com.univ.doraboda.viewModel.CalendarViewModel.CalendarState
 import com.univ.doraboda.viewModel.CalendarViewModel.CalendarIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -35,7 +36,8 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     val viewModel: CalendarViewModel by viewModels()
     lateinit var list: ArrayList<CalendarItem> //지금 참고하는 캘린더 리스트
     var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
-    val labelList = listOf(R.color.mainYellow, R.color.lime, R.color.pink, R.color.blue)
+    val labelList = listOf(R.color.mainYellow, R.color.lime, R.color.pink, R.color.skyBlue)
+    var previousState = CalendarState()
 
     override fun layoutId(): Int = R.layout.fragment_calendar
 
@@ -86,17 +88,23 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         snap.attachToRecyclerView(binding.calendarRecyclerView)
         isInit = true
 
-        lifecycleScope.launch{
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.state.collect{
-                    Timber.d("collected ${it.memos} ${it.isLoading}")
                     if(it.isError){
                         Timber.d("error in calendar")
                     }
                     if(it.isLoading){
                     } else { //memo, emotion, labelColor 바뀔때마다 같은 기간 내에서 수정
-                        list = calendarUtil.getDays(labelList.get(it.labelColorIndex))
-                        submitAdapterList(list, it.memos, it.emotions)
+                        if(it.memos != previousState.memos ||
+                            it.emotions != previousState.emotions ||
+                            it.labelColorIndex != previousState.labelColorIndex ||
+                            it.updateID != previousState.updateID){
+                            Timber.d("collected and submit")
+                            list = calendarUtil.getDays(labelList.get(it.labelColorIndex))
+                            submitAdapterList(list, it.memos, it.emotions)
+                            previousState = it
+                        }
                     }
                 }
             }

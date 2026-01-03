@@ -3,6 +3,7 @@ package com.univ.doraboda.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -111,6 +112,13 @@ class ReadModeActivity : AppCompatActivity() {
                             isMemoExist = it.memo != null
                         }
                     }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.errorEvents.collect{
+                    Toast.makeText(this@ReadModeActivity, it, Toast.LENGTH_SHORT).show()
                 }
             }
         }

@@ -39,8 +39,8 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
     override fun layoutId() = R.layout.fragment_data
 
     override fun layoutInit() {
-        lifecycleScope.launch{
-            repeatOnLifecycle(Lifecycle.State.STARTED){
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.state.collect{
                     if(it.isLoading){
 

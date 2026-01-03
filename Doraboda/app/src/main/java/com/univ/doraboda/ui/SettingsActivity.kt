@@ -3,6 +3,7 @@ package com.univ.doraboda.ui
 import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.RadioButton
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -50,6 +51,14 @@ class SettingsActivity : AppCompatActivity() {
                             }
                         }
                     }
+                }
+            }
+        }
+
+        lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.errorEvents.collect {
+                    Toast.makeText(this@SettingsActivity, it, Toast.LENGTH_SHORT).show()
                 }
             }
         }
