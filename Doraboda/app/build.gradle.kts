@@ -72,6 +72,7 @@ dependencies {
     //room
     implementation("androidx.room:room-runtime:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
 
     //coroutine
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.0")
@@ -119,6 +120,10 @@ dependencies {
     //retrofit
     implementation ("com.squareup.retrofit2:retrofit:3.0.0")
     implementation ("com.squareup.retrofit2:converter-gson:3.0.0")
+
+    //datastore
+    implementation("androidx.datastore:datastore:1.2.0")
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
 }
 
 kapt {

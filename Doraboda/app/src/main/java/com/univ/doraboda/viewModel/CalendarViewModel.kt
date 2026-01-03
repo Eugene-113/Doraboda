@@ -4,56 +4,67 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.univ.doraboda.model.Emotion
 import com.univ.doraboda.model.Memo
+import com.univ.doraboda.repository.DataStoreRepository
 import com.univ.doraboda.repository.EmotionRepository
 import com.univ.doraboda.repository.MemoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class CalendarViewModel @Inject constructor(val memoRepository: MemoRepository, val emotionRepository: EmotionRepository): ViewModel() {
-    data class CalendarState(val isLoading: Boolean = true, val memos: List<Memo>? = null, val emotions: List<Emotion>? = null, val isError: Boolean = false, val updateID: Int = 0)
+class CalendarViewModel @Inject constructor(val memoRepository: MemoRepository, val emotionRepository: EmotionRepository, val dataStoreRepository: DataStoreRepository): ViewModel() {
+    data class CalendarState(val isLoading: Boolean = true, val memos: List<Memo>? = null, val emotions: List<Emotion>? = null, val isError: Boolean = false, val updateID: Int = 0, val labelColorIndex: Int = -1)
+    data class DateState(val startDate: Long = -1, val endDate: Long = -1)
     sealed class CalendarIntent {
-        data class LoadBetweenMemoAndEmotion(val date1: Long, val date2: Long): CalendarIntent()
+        data class LoadBetweenUserData(val date1: Long, val date2: Long): CalendarIntent()
     }
     sealed class CalendarResult{
         object Loading: CalendarResult()
-        data class MemosAndEmotionsLoaded(val memos: List<Memo>?, val emotions: List<Emotion>?): CalendarResult()
-        data class Error(val ex: String): CalendarResult()
+        data class UserDataLoaded(val memos: List<Memo>?, val emotions: List<Emotion>?, val labelColorIndex: Int): CalendarResult()
+        object Error: CalendarResult()
     }
-    private val _state = MutableStateFlow(CalendarState())
+    private val dateState = MutableStateFlow(DateState())
+    private val _state = dateState.filter {
+        it.startDate != (-1).toLong() && it.endDate != (-1).toLong()
+    }.flatMapLatest { (d1, d2) ->
+        combine(memoRepository.getBetween(d1, d2),
+            emotionRepository.getBetween(d1, d2),
+            dataStoreRepository.getLabelSetting()
+        ){ memos, emotions, colorIndex ->
+            reduce(CalendarResult.UserDataLoaded(memos, emotions, colorIndex))
+        }.onStart {
+            emit(reduce(CalendarResult.Loading))
+        }
+    }.catch {
+        emit(reduce(CalendarResult.Error))
+    }.flowOn(Dispatchers.IO)
+        .stateIn(scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = CalendarState()
+    )
     val state: StateFlow<CalendarState> = _state
-
-    private val dispatchers = Dispatchers.IO
 
     private fun reduce(result: CalendarResult): CalendarState{
         return when(result){
             is CalendarResult.Loading -> _state.value.copy(isLoading = true, isError = false)
-            is CalendarResult.MemosAndEmotionsLoaded -> _state.value.copy(isLoading = false, memos = result.memos, emotions = result.emotions, isError = false, updateID = _state.value.updateID + 1)
+            is CalendarResult.UserDataLoaded -> _state.value.copy(isLoading = false, memos = result.memos, emotions = result.emotions, labelColorIndex = result.labelColorIndex , isError = false, updateID = _state.value.updateID + 1)
             is CalendarResult.Error -> _state.value.copy(isLoading = false, isError = true)
         }
     }
 
     fun handleIntent(intent: CalendarIntent){
-        viewModelScope.launch(dispatchers){
-            try{
-                when(intent){
-                    is CalendarIntent.LoadBetweenMemoAndEmotion -> loadBetweenMemoAndEmotion(intent.date1, intent.date2)
-                }
-            }
-            catch(e: Exception){
-                _state.value = reduce(CalendarResult.Error(e.toString()))
-            }
+        when(intent){
+            is CalendarIntent.LoadBetweenUserData -> dateState.value = dateState.value.copy(intent.date1, intent.date2)
         }
-    }
-
-    private fun loadBetweenMemoAndEmotion(date1: Long, date2: Long){
-        _state.value = reduce(CalendarResult.Loading)
-        val memos = memoRepository.getBetween(date1, date2)
-        val emotions = emotionRepository.getBetween(date1, date2)
-        _state.value = reduce(CalendarResult.MemosAndEmotionsLoaded(memos, emotions))
     }
 }

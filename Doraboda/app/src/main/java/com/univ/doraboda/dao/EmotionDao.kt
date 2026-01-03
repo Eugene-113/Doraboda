@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.univ.doraboda.model.Emotion
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
@@ -13,7 +14,7 @@ interface EmotionDao {
     fun insertEmotion(emotion: Emotion)
 
     @Query("SELECT * FROM emotionTable WHERE id = :id")
-    fun getEmotion(id: Date): Emotion
+    fun getEmotion(id: Date): Flow<Emotion?>
 
     @Query("UPDATE emotionTable SET emotion = :emotion WHERE id = :id")
     fun updateEmotion(id: Date, emotion: String)
@@ -22,5 +23,5 @@ interface EmotionDao {
     fun deleteEmotion(id: Date)
 
     @Query("SELECT * FROM emotionTable WHERE id BETWEEN :date1 AND :date2")
-    fun getBetweenEmotion(date1: Long, date2: Long): List<Emotion>
+    fun getBetweenEmotion(date1: Long, date2: Long): Flow<List<Emotion>>
 }

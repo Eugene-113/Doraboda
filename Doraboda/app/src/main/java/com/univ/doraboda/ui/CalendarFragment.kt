@@ -1,14 +1,7 @@
 package com.univ.doraboda.ui
 
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
-import android.widget.Button
-import android.widget.NumberPicker
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -39,61 +32,34 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     var middlePositionOfItem = 50 //날짜 List의 가운데 position, 기준점 position
     var calendarAdapter: CalendarAdapter? = null
     lateinit var calendarUtil: CalendarUtil
-    lateinit var application: android.app.Application
     val viewModel: CalendarViewModel by viewModels()
-
-    val startForResult: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        Timber.d("startforresult")
-        if (result.resultCode == Activity.RESULT_OK) {
-            val intent = result.data
-            if(intent != null){
-                val dayInfo = intent.getStringExtra("DayAndExist")
-                if(dayInfo != null){
-                    val dayInfos = dayInfo.split("/")
-                    if(dayInfos.get(3) == "true" || dayInfos.get(4) == "true"){
-                        val thisCalendar = Calendar.getInstance()
-                        thisCalendar.set(dayInfos.get(0).toInt(), dayInfos.get(1).toInt()-1, dayInfos.get(2).toInt(), 0, 0, 0)
-                        thisCalendar.set(Calendar.MILLISECOND, 0)
-                        selectedCalendarItem = thisCalendar
-                        val newList = calendarUtil.getDays(thisCalendar)
-                        middlePositionOfItem = calendarUtil.middlePoint
-                        val calendar1 = getStartTime(newList)
-                        val calendar2 = getEndTime(newList)
-                        list = newList
-                        viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청
-                        setDateAndTextView(thisCalendar)
-                    }
-                }
-            }
-        }
-    }
-
     lateinit var list: ArrayList<CalendarItem> //지금 참고하는 캘린더 리스트
     var selectedCalendarItem = Calendar.getInstance() //스크롤 시마다 갱신된다
+    val labelList = listOf(R.color.mainYellow, R.color.lime, R.color.pink, R.color.blue)
 
     override fun layoutId(): Int = R.layout.fragment_calendar
 
     override fun layoutInit(){
         calendarUtil = CalendarUtil()
         //지금 화면에 표시되는 년월을 다이얼로그에 전달할 목적으로 사용된다
-        val intent = Intent(activity, SettingsActivity::class.java)
         binding.calendarSettingsImageView.setOnClickListener {
+            val intent = Intent(requireContext(), SettingsActivity::class.java)
             startActivity(intent)
         }
 
-        application = requireActivity().application
         var isInit: Boolean
+
         val calendar = Calendar.getInstance()
         calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        list = calendarUtil.getDays(calendar)
-        middlePositionOfItem = calendarUtil.middlePoint
+        calendar.set(Calendar.MILLISECOND, 0) //화면 진입 시 시간
 
-        val calendar1 = getStartTime(list)
-        val calendar2 = getEndTime(list)
+        calendarUtil.setCalendar(calendar)
+        middlePositionOfItem = calendarUtil.getMiddlePointAndSetNums()
+        val calendar1 = calendarUtil.getStartDay()
+        val calendar2 = calendarUtil.getEndDay()
 
         val manager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        calendarAdapter = CalendarAdapter(activity as Context, startForResult, calendar)
+        calendarAdapter = CalendarAdapter(requireContext(), calendar)
         binding.calendarRecyclerView.apply {
             layoutManager = manager
             adapter = calendarAdapter
@@ -110,7 +76,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
             })
         }
         calendarAdapter!!.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver(){
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) { //새로운 리스트 감지
                 binding.calendarRecyclerView.scrollToPosition(middlePositionOfItem)
             }
         })
@@ -123,18 +89,20 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.state.collect{
+                    Timber.d("collected ${it.memos} ${it.isLoading}")
+                    if(it.isError){
+                        Timber.d("error in calendar")
+                    }
                     if(it.isLoading){
-                    } else {
-                        if(it.isError){}
-                        else{
-                            submitAdapterList(list, it.memos, it.emotions)
-                        }
+                    } else { //memo, emotion, labelColor 바뀔때마다 같은 기간 내에서 수정
+                        list = calendarUtil.getDays(labelList.get(it.labelColorIndex))
+                        submitAdapterList(list, it.memos, it.emotions)
                     }
                 }
             }
         }
 
-        viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청 (최초)
+        viewModel.handleIntent(CalendarIntent.LoadBetweenUserData(calendar1.timeInMillis, calendar2.timeInMillis)) //아이템배치 변경요청 (최초)
 
         binding.dateTextView.setOnClickListener {
             if(isInit){
@@ -156,17 +124,19 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                 dialogBinding.calendarDatePickerCancelButton.setOnClickListener {
                     dialog.dismiss()
                 }
-                dialogBinding.calendarDatePickerDoneButton.setOnClickListener {
+                dialogBinding.calendarDataPickerDoneButton.setOnClickListener {
                     val changedCalendar = Calendar.getInstance()
                     changedCalendar.set(dialogBinding.yearNumberPicker.value, dialogBinding.monthNumberPicker.value - 1, 1, 0, 0, 0)
-                    changedCalendar.set(Calendar.MILLISECOND, 0)
+                    changedCalendar.set(Calendar.MILLISECOND, 0) //현재 선택된 년월
+
                     selectedCalendarItem = changedCalendar
-                    val changedList = calendarUtil.getDays(changedCalendar)
-                    middlePositionOfItem = calendarUtil.middlePoint
-                    val calendar3 = getStartTime(changedList)
-                    val calendar4 = getEndTime(changedList)
-                    list = changedList
-                    viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar3.timeInMillis, calendar4.timeInMillis)) //아이템배치 변경요청
+
+                    calendarUtil.setCalendar(changedCalendar)
+                    middlePositionOfItem = calendarUtil.getMiddlePointAndSetNums()
+                    val calendar3 = calendarUtil.getStartDay()
+                    val calendar4 = calendarUtil.getEndDay()
+
+                    viewModel.handleIntent(CalendarIntent.LoadBetweenUserData(calendar3.timeInMillis, calendar4.timeInMillis)) //아이템배치 변경요청
                     setDateAndTextView(changedCalendar)
                     dialog.dismiss()
                 }
@@ -177,22 +147,6 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         //받은 날짜 데이터 기반으로 화면 상단의 년월 텍스트 설정, 받은 날짜 데이터를 기준점 데이터로 저장할 목적
         binding.dateTextView.text = "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월"
         calendarItem = calendar
-    }
-
-    fun getStartTime(list: ArrayList<CalendarItem>): Calendar{
-        val date1 = list.get(0)
-        val calendar1 = Calendar.getInstance()
-        calendar1.set(date1.year, date1.month-1, 1, 0, 0, 0)
-        calendar1.set(Calendar.MILLISECOND, 0)
-        return calendar1
-    }
-
-    fun getEndTime(list: ArrayList<CalendarItem>): Calendar{
-        val date2 = list.get(list.size-1)
-        val calendar2 = Calendar.getInstance()
-        calendar2.set(date2.year, date2.month-1, 32, 0, 0, 0)
-        calendar2.set(Calendar.MILLISECOND, 0)
-        return calendar2
     }
 
     fun submitAdapterList(thisList: ArrayList<CalendarItem>, memos: List<Memo>?, emotions: List<Emotion>?){

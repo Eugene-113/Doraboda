@@ -59,10 +59,6 @@ class ReadModeActivity : AppCompatActivity() {
     val viewModel: ReadModeViewModel by viewModels()
     var isMemoExist = false
     var nonSlashedDate: String? = null
-    var memoFlag = true
-    var emotionFlag = true
-    var firstMemoValue = false
-    var firstEmotionValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,16 +109,6 @@ class ReadModeActivity : AppCompatActivity() {
                             setImage(it.emotion)
 
                             isMemoExist = it.memo != null
-
-                            if(memoFlag){
-                                firstMemoValue = isMemoExist
-                                memoFlag = false
-                            }
-                            if(emotionFlag){
-                                firstEmotionValue = thisEmo
-                                emotionFlag = false
-                            }
-                            resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
                         }
                     }
                 }

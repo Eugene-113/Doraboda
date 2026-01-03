@@ -15,4 +15,7 @@
     <color name="bgYellow">#F8F8F8</color>
     <color name="blue">#2196F3</color>
     <color name="orange">#FF9800</color>
+    <color name="pink">#FF6BF3</color>
+    <color name="skyBlue">#5DDFFF</color>
+    <color name="lime">#78FF8B</color>
 </resources>

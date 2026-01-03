@@ -14,9 +14,10 @@ import com.univ.doraboda.model.CalendarItem
 import com.univ.doraboda.databinding.ItemCalendarBinding
 import java.util.Calendar
 
-class CalendarAdapter(val context: Context, val startForResult: ActivityResultLauncher<Intent>, val calendar: Calendar) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
+class CalendarAdapter(val context: Context, val calendar: Calendar) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
     CalendarDiffCallback
 ) {
+
     object CalendarDiffCallback : DiffUtil.ItemCallback<CalendarItem>(){
         override fun areItemsTheSame(oldItem: CalendarItem, newItem: CalendarItem): Boolean {
             return oldItem.year == newItem.year && oldItem.month == newItem.month
@@ -24,13 +25,13 @@ class CalendarAdapter(val context: Context, val startForResult: ActivityResultLa
 
         @SuppressLint("DiffUtilEquals")
         override fun areContentsTheSame(oldItem: CalendarItem, newItem: CalendarItem): Boolean {
-            return oldItem.memoListMap == newItem.memoListMap && oldItem.emotionListMap == newItem.emotionListMap
+            return oldItem.memoListMap == newItem.memoListMap && oldItem.emotionListMap == newItem.emotionListMap && oldItem.labelColor == newItem.labelColor
         }
     }
 
-    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context, val startForResult: ActivityResultLauncher<Intent>, val calendar: Calendar) : RecyclerView.ViewHolder(binding.root){
+    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context, val calendar: Calendar) : RecyclerView.ViewHolder(binding.root){
         fun bind(item: CalendarItem){
-            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/", startForResult, item.memoListMap, item.emotionListMap, calendar)
+            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/", item.memoListMap, item.emotionListMap, calendar, item.labelColor)
             binding.dayRecyclerView.apply {
                 layoutManager = GridLayoutManager(context, 7)
                 adapter = dayAdapter
@@ -41,7 +42,7 @@ class CalendarAdapter(val context: Context, val startForResult: ActivityResultLa
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val binding = ItemCalendarBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return DayViewHolder(binding, context, startForResult, calendar)
+        return DayViewHolder(binding, context, calendar)
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {

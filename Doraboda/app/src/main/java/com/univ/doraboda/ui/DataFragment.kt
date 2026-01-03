@@ -21,15 +21,15 @@ import com.univ.doraboda.R
 import com.univ.doraboda.databinding.DialogCalendardatepickerBinding
 import com.univ.doraboda.databinding.FragmentDataBinding
 import com.univ.doraboda.model.Emotion
-import com.univ.doraboda.viewModel.CalendarViewModel
-import com.univ.doraboda.viewModel.CalendarViewModel.CalendarIntent
+import com.univ.doraboda.viewModel.DataViewModel
+import com.univ.doraboda.viewModel.DataViewModel.DataIntent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
 @AndroidEntryPoint
 class DataFragment : BaseFragment<FragmentDataBinding>() {
-    val viewModel: CalendarViewModel by viewModels()
+    val viewModel: DataViewModel by viewModels()
     lateinit var emotionNumberList: MutableList<Int> //감정 분포도
     var maximumNumber = 0
     lateinit var selectedCalendarItem: Calendar
@@ -192,7 +192,7 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
             setUsePercentValues(true)
             setEntryLabelTextSize(15f)
         }
-        viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar1.timeInMillis, calendar2.timeInMillis))
+        viewModel.handleIntent(DataIntent.LoadBetweenEmotions(calendar1.timeInMillis, calendar2.timeInMillis))
         binding.dataTextView2.setOnClickListener {
             val dialogBinding = DialogCalendardatepickerBinding.inflate(layoutInflater)
             val builder = AlertDialog.Builder(requireContext())
@@ -211,7 +211,7 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
             dialogBinding.calendarDatePickerCancelButton.setOnClickListener {
                 dialog.dismiss()
             }
-            dialogBinding.calendarDatePickerDoneButton.setOnClickListener {
+            dialogBinding.calendarDataPickerDoneButton.setOnClickListener {
                 //현재 선택된 캘린더 데이터 갱신
                 selectedCalendarItem.set(Calendar.YEAR, dialogBinding.yearNumberPicker.value)
                 selectedCalendarItem.set(Calendar.MONTH, dialogBinding.monthNumberPicker.value - 1)
@@ -219,7 +219,7 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                 calendar3.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), 1, 0, 0, 0)
                 val calendar4 = Calendar.getInstance()
                 calendar4.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), calendar.getActualMaximum(Calendar.DATE), 0, 0, 0)
-                viewModel.handleIntent(CalendarIntent.LoadBetweenMemoAndEmotion(calendar3.timeInMillis, calendar4.timeInMillis))
+                viewModel.handleIntent(DataIntent.LoadBetweenEmotions(calendar3.timeInMillis, calendar4.timeInMillis))
                 binding.dataTextView2.text = "${dialogBinding.yearNumberPicker.value}년 ${dialogBinding.monthNumberPicker.value}월"
                 dialog.dismiss()
             }
@@ -254,11 +254,12 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
                 maximumNumber = thisEmotionNumber
             }
         }
-        if(maximumNumber != 0)
-        for(i in 0..<6){
-            val thisEmotionNumber = emotionNumberList.get(i)
-            if (thisEmotionNumber == maximumNumber){
-                maximumIndexList.add(i)
+        if(maximumNumber != 0){
+            for(i in 0..<6){
+                val thisEmotionNumber = emotionNumberList.get(i)
+                if (thisEmotionNumber == maximumNumber){
+                    maximumIndexList.add(i)
+                }
             }
         }
         return maximumEmotionIndex
