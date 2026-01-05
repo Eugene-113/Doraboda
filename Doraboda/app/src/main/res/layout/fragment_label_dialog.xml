@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="@drawable/graphic_border"
+        tools:context=".ui.LabelDialogFragment"
         >
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/labelPickerLinearLayout1"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/labelPickerLinearLayout2"
             >
             <RadioGroup
                 android:id="@+id/labelRadioGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="120dp"
-                android:layout_marginTop="100dp"
+                android:layout_width="match_parent"
+                android:layout_marginHorizontal="60dp"
+                android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -23,60 +27,75 @@
                 >
                 <RadioButton
                     android:id="@+id/labelRadioYellow"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_radio_button_yellow"
                     android:button="@null"
-                    android:layout_margin="20dp"
+                    android:layout_weight="1"
                     />
                 <RadioButton
                     android:id="@+id/labelRadioLime"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_radio_button_lime"
                     android:button="@null"
-                    android:layout_margin="20dp"
+                    android:layout_weight="1"
                     />
                 <RadioButton
                     android:id="@+id/labelRadioPink"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_radio_button_pink"
                     android:button="@null"
-                    android:layout_margin="20dp"
+                    android:layout_weight="1"
                     />
                 <RadioButton
                     android:id="@+id/labelRadioSkyBlue"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_radio_button_skyblue"
                     android:button="@null"
-                    android:layout_margin="20dp"
+                    android:layout_weight="1"
                     />
             </RadioGroup>
         </androidx.constraintlayout.widget.ConstraintLayout>
         <LinearLayout
-            app:layout_constraintTop_toBottomOf="@+id/labelPickerLinearLayout1"
+            android:id="@+id/labelPickerLinearLayout2"
+            app:layout_constraintTop_toBottomOf="@id/labelPickerLinearLayout1"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
             <Button
                 android:id="@+id/labelsCancelButton"
                 android:layout_weight="1"
                 android:text="취소"
                 android:textColor="@color/black"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 />
             <Button
                 android:id="@+id/labelsDoneButton"
                 android:layout_weight="1"
                 android:text="확인"
                 android:textColor="@color/black"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

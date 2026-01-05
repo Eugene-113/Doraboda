@@ -1,17 +1,14 @@
 package com.univ.doraboda.ui
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.univ.doraboda.R
 import com.univ.doraboda.databinding.ActivitySettingsBinding
-import com.univ.doraboda.databinding.DialogLabelsBinding
 import com.univ.doraboda.viewModel.SettingsViewModel
 import com.univ.doraboda.viewModel.SettingsViewModel.SettingsIntent
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,8 +23,7 @@ class SettingsActivity : AppCompatActivity() {
     var labelType = 0 //현재 라벨타입
     var firstLabelType = 0 //최초 라벨타입
     var firstQuoteMode = true //최초 명언모드
-    var flag = true
-    val radioButtonList = listOf(R.id.labelRadioYellow, R.id.labelRadioLime, R.id.labelRadioPink, R.id.labelRadioSkyBlue)
+    var initFlag = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,12 +38,12 @@ class SettingsActivity : AppCompatActivity() {
                     }
                     else{
                         if(it.isQuoteModeOn != null && it.labelType != -1){
-                            if(flag){
+                            if(initFlag){
                                 labelType = it.labelType
                                 firstLabelType = it.labelType //라벨타입 초기값 세팅
                                 binding.settingsSwitch.isChecked = it.isQuoteModeOn //스위치 초기값 세팅
                                 firstQuoteMode = it.isQuoteModeOn //스위치 초기값 세팅
-                                flag = false
+                                initFlag = false
                             }
                         }
                     }
@@ -62,25 +58,15 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
-
+        supportFragmentManager.setFragmentResultListener("settingsResult", this){ _, bundle ->
+            labelType = bundle.getInt("dialogIndex")
+        }
         binding.settingsLayout1.setOnClickListener {
-            val dialogBinding = DialogLabelsBinding.inflate(layoutInflater)
-            val builder = AlertDialog.Builder(this)
-            builder.setView(dialogBinding.root)
-            val dialog = builder.create()
-            dialogBinding.labelRadioGroup.apply {
-                check(radioButtonList.get(labelType)) //라디오버튼 초기값 세팅
+            if(!initFlag){ //labelType 초기값세팅 완료될시 실행
+                LabelDialogFragment().apply {
+                    arguments = bundleOf("fragmentIndex" to labelType)
+                }.show(supportFragmentManager, "dialog")
             }
-            dialogBinding.labelsCancelButton.setOnClickListener {
-                dialog.dismiss()
-            }
-            dialogBinding.labelsDoneButton.setOnClickListener {
-                val selectedButton = dialogBinding.root.findViewById<RadioButton>(dialogBinding.labelRadioGroup.checkedRadioButtonId)
-                val index = dialogBinding.labelRadioGroup.indexOfChild(selectedButton)
-                labelType = index
-                dialog.dismiss()
-            }
-            dialog.show()
         }
     }
 

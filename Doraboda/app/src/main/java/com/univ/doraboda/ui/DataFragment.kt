@@ -3,6 +3,7 @@ package com.univ.doraboda.ui
 import android.app.AlertDialog
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,7 +19,6 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.univ.doraboda.R
-import com.univ.doraboda.databinding.DialogCalendardatepickerBinding
 import com.univ.doraboda.databinding.FragmentDataBinding
 import com.univ.doraboda.model.Emotion
 import com.univ.doraboda.viewModel.DataViewModel
@@ -193,37 +193,25 @@ class DataFragment : BaseFragment<FragmentDataBinding>() {
             setEntryLabelTextSize(15f)
         }
         viewModel.handleIntent(DataIntent.LoadBetweenEmotions(calendar1.timeInMillis, calendar2.timeInMillis))
+
+        parentFragmentManager.setFragmentResultListener("calendarResult", this){ _, bundle ->
+            val dialogDate = bundle.getString("dialogDate") ?: "2001/1"
+            val dateArr = dialogDate.split("/")
+
+            selectedCalendarItem.set(Calendar.YEAR, dateArr.get(0).toInt())
+            selectedCalendarItem.set(Calendar.MONTH, dateArr.get(1).toInt()-1)
+            val calendar3 = Calendar.getInstance()
+            calendar3.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), 1, 0, 0, 0)
+            val calendar4 = Calendar.getInstance()
+            calendar4.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), calendar.getActualMaximum(Calendar.DATE), 0, 0, 0)
+            viewModel.handleIntent(DataIntent.LoadBetweenEmotions(calendar3.timeInMillis, calendar4.timeInMillis))
+            binding.dataTextView2.text = "${dateArr.get(0)}년 ${dateArr.get(1)}월"
+        }
+
         binding.dataTextView2.setOnClickListener {
-            val dialogBinding = DialogCalendardatepickerBinding.inflate(layoutInflater)
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setView(dialogBinding.root)
-            val dialog = builder.create()
-            dialogBinding.yearNumberPicker.apply {
-                minValue = 2000
-                maxValue = 3000
-                value = selectedCalendarItem.get(Calendar.YEAR)
-            }
-            dialogBinding.monthNumberPicker.apply {
-                minValue = 1
-                maxValue = 12
-                value = selectedCalendarItem.get(Calendar.MONTH) + 1
-            }
-            dialogBinding.calendarDatePickerCancelButton.setOnClickListener {
-                dialog.dismiss()
-            }
-            dialogBinding.calendarDataPickerDoneButton.setOnClickListener {
-                //현재 선택된 캘린더 데이터 갱신
-                selectedCalendarItem.set(Calendar.YEAR, dialogBinding.yearNumberPicker.value)
-                selectedCalendarItem.set(Calendar.MONTH, dialogBinding.monthNumberPicker.value - 1)
-                val calendar3 = Calendar.getInstance()
-                calendar3.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), 1, 0, 0, 0)
-                val calendar4 = Calendar.getInstance()
-                calendar4.set(selectedCalendarItem.get(Calendar.YEAR), selectedCalendarItem.get(Calendar.MONTH), calendar.getActualMaximum(Calendar.DATE), 0, 0, 0)
-                viewModel.handleIntent(DataIntent.LoadBetweenEmotions(calendar3.timeInMillis, calendar4.timeInMillis))
-                binding.dataTextView2.text = "${dialogBinding.yearNumberPicker.value}년 ${dialogBinding.monthNumberPicker.value}월"
-                dialog.dismiss()
-            }
-            dialog.show()
+            DateDialogFragment().apply {
+                arguments = bundleOf("fragmentDate" to "${selectedCalendarItem.get(Calendar.YEAR)}/${selectedCalendarItem.get(Calendar.MONTH)+1}")
+            }.show(parentFragmentManager, "dialog")
         }
     }
 
