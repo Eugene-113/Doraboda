@@ -53,7 +53,7 @@ class DayAdapter(val context: Context, val yearAndMonth: String, val memoList: M
                     "angry" -> R.drawable.icon_angry
                     "confused" -> R.drawable.icon_confused
                     "happy" -> R.drawable.icon_happy
-                    else -> R.drawable.icon_add
+                    else -> R.drawable.icon_empty
                 }
                 val drawable = ContextCompat.getDrawable(context, image)
                 Glide.with(context).load(drawable).into(binding.dayItemImage)
