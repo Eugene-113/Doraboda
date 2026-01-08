@@ -19,6 +19,12 @@ interface MemoDao {
     @Query("DELETE FROM memoTable WHERE id = :id")
     fun deleteData(id: Date)
 
+    @Query("DELETE FROM memoTable")
+    fun deleteAllMemo()
+
     @Query("SELECT * FROM memoTable WHERE id BETWEEN :date1 AND :date2")
     fun getBetweenMemo(date1: Long, date2: Long): Flow<List<Memo>>
+
+    @Query("SELECT * FROM memoTable")
+    fun getAllMemo(): Flow<List<Memo>>
 }

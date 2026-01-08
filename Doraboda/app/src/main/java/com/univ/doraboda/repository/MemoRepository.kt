@@ -20,7 +20,11 @@ class MemoRepository @Inject constructor(private val dao: MemoDao){
         dao.deleteData(date)
     }
 
+    fun deleteAllMemo() = dao.deleteAllMemo()
+
     fun getMemo(id: Date): Flow<Memo?> = dao.getMemo(id)
 
     fun getBetween(date1: Long, date2: Long): Flow<List<Memo>> = dao.getBetweenMemo(date1, date2)
+
+    fun getAllMemo(): Flow<List<Memo>> = dao.getAllMemo()
 }

@@ -8,7 +8,6 @@ import com.univ.doraboda.repository.DataStoreRepository
 import com.univ.doraboda.repository.EmotionRepository
 import com.univ.doraboda.repository.MemoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +15,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -41,14 +40,15 @@ class CalendarViewModel @Inject constructor(private val memoRepository: MemoRepo
             emotionRepository.getBetween(d1, d2),
             dataStoreRepository.getLabelSetting()
         ){ memos, emotions, colorIndex ->
-            reduce(CalendarResult.UserDataLoaded(memos, emotions, colorIndex))
+            CalendarResult.UserDataLoaded(memos, emotions, colorIndex)
+        }.map { result ->
+            reduce(result)
         }.onStart {
             emit(reduce(CalendarResult.Loading))
         }
     }.catch {
         emit(reduce(CalendarResult.Error))
-    }.flowOn(Dispatchers.IO)
-        .stateIn(scope = viewModelScope,
+    }.stateIn(scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = CalendarState()
     )

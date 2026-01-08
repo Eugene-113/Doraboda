@@ -18,7 +18,7 @@ class DataStoreRepository @Inject constructor(private val dataStoreUtil: DataSto
         return dataStoreUtil.getQuoteSetting()
     }
 
-    fun setQuoteSetting(label: Boolean){
+    suspend fun setQuoteSetting(label: Boolean){
         dataStoreUtil.setQuoteSetting(label)
     }
 }

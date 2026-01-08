@@ -42,14 +42,15 @@ class ReadModeViewModel @Inject constructor(private val memoRepository: MemoRepo
         it.date != null
     }.flatMapLatest { (date) ->
         combine(memoRepository.getMemo(date!!), emotionRepository.getEmotion(date)){ memo, emotion ->
-            reduce(ReadModeResult.MemoAndEmotionLoaded(memo?.memo, emotion?.emotion))
+            ReadModeResult.MemoAndEmotionLoaded(memo?.memo, emotion?.emotion)
+        }.map { result ->
+            reduce(result)
         }.onStart {
             emit(reduce(ReadModeResult.Loading))
         }
     }.catch { e ->
-        emit(reduce(ReadModeResult.Error(e.toString())))
-    }.flowOn(Dispatchers.IO)
-        .stateIn(scope = viewModelScope,
+        emit(reduce(ReadModeResult.Error(e.message.toString())))
+    }.stateIn(scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = ReadModeState()
             )
@@ -84,7 +85,7 @@ class ReadModeViewModel @Inject constructor(private val memoRepository: MemoRepo
                     is ReadModeIntent.DeleteEmotion -> deleteEmotion(intent.date)
                 }
             } catch (e: Exception) {
-                _errorEvents.emit(e.toString())
+                _errorEvents.emit(e.message.toString())
             }
         }
     }

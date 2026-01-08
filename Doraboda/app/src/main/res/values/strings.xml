@@ -22,4 +22,6 @@
     <string name="dialog_ok">확인</string>
     <string name="dialog_cancel">취소</string>
     <string name="dialog_title">년월 설정</string>
+    <string name="dialog_quest">백업 데이터를 불러오면 현재 기기에 저장된 모든 데이터는 사라집니다. 계속하시겠습니까?</string>
+    <string name="dialog_quest2">오늘의 한마디를 삭제하시겠습니까?</string>
 </resources>

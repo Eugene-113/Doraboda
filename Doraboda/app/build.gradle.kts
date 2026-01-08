@@ -1,4 +1,11 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
+}
 
 plugins {
     id("com.android.application")
@@ -15,6 +22,7 @@ if(file.exists()) file.inputStream().use { localProperties.load(it) }
 android {
     namespace = "com.univ.doraboda"
     compileSdk = 36
+    ndkVersion = "29.0.14206865"
 
     defaultConfig {
         applicationId = "com.univ.doraboda"
@@ -41,9 +49,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     dataBinding {
         enable = true
     }
@@ -65,7 +70,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
     implementation ("com.jakewharton.timber:timber:5.0.1")
     implementation ("com.google.android.material:material:1.9.0")
 
@@ -85,7 +90,7 @@ dependencies {
     implementation ("androidx.fragment:fragment-ktx:${viewModels_version2}")
 
     //glide
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation ("com.github.bumptech.glide:glide:5.0.5")
 
     //recyclerView
     implementation("androidx.recyclerview:recyclerview:1.4.0")
@@ -106,13 +111,13 @@ dependencies {
     implementation("androidx.media3:media3-common:$media3_version")
 
     //hilt
-    implementation("com.google.dagger:hilt-android:2.57.1")
-    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
+    implementation("com.google.dagger:hilt-android:2.57.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.57.2")
 
     //guava
-    implementation("com.google.guava:guava:31.0.1-android")
+    implementation("com.google.guava:guava:33.5.0-android")
     implementation("androidx.concurrent:concurrent-futures:1.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.10.2")
 
     //mpChart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
@@ -124,6 +129,9 @@ dependencies {
     //datastore
     implementation("androidx.datastore:datastore:1.2.0")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
+
+    //gson
+    implementation("com.google.code.gson:gson:2.13.2")
 }
 
 kapt {

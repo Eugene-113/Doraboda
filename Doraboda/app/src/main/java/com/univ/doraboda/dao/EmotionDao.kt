@@ -7,6 +7,7 @@ import androidx.room.Query
 import com.univ.doraboda.model.Emotion
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
+import kotlin.collections.List
 
 @Dao
 interface EmotionDao {
@@ -22,6 +23,12 @@ interface EmotionDao {
     @Query("DELETE FROM emotionTable WHERE id = :id")
     fun deleteEmotion(id: Date)
 
+    @Query("DELETE FROM emotionTable")
+    fun deleteAllEmotion()
+
     @Query("SELECT * FROM emotionTable WHERE id BETWEEN :date1 AND :date2")
     fun getBetweenEmotion(date1: Long, date2: Long): Flow<List<Emotion>>
+
+    @Query("SELECT * FROM emotionTable")
+    fun getAllEmotion(): Flow<List<Emotion>>
 }

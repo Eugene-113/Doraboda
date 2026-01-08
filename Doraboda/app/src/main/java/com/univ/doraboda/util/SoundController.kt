@@ -11,11 +11,14 @@ import com.univ.doraboda.Service.SoundService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -68,6 +71,7 @@ class SoundController @Inject constructor(@ApplicationContext private val contex
             controller = null
             MediaController.releaseFuture(controllerFuture!!)
             controllerFuture = null
+            scope.cancel()
         }
     }
 }

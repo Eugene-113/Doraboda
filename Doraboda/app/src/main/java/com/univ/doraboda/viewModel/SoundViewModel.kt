@@ -103,7 +103,7 @@ class SoundViewModel @Inject constructor(private val controller: SoundController
             val quoteMode = dataStoreRepository.getQuoteSetting().first()
             return quoteMode
         }catch (e: Exception){
-            _errorEvents.emit(e.toString())
+            _errorEvents.emit(e.message.toString())
             return false
         }
     }

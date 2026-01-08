@@ -47,11 +47,9 @@ class DataStoreUtil @Inject constructor(@ApplicationContext val context: Context
         preferences[QUOTE_KEY] ?: true
     }
 
-    fun setQuoteSetting(label: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch{
-            context.dataStore.edit { preferences ->
-                preferences[QUOTE_KEY] = label
-            }
+    suspend fun setQuoteSetting(label: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[QUOTE_KEY] = label
         }
     }
 }

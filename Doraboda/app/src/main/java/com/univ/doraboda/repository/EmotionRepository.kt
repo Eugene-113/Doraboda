@@ -20,6 +20,8 @@ class EmotionRepository @Inject constructor(private val dao: EmotionDao){
         dao.deleteEmotion(date)
     }
 
+    fun deleteAllEmotion() = dao.deleteAllEmotion()
+
     fun getEmotion(id: Date): Flow<Emotion?> {
         return dao.getEmotion(id)
     }
@@ -27,4 +29,6 @@ class EmotionRepository @Inject constructor(private val dao: EmotionDao){
     fun getBetween(date1: Long, date2: Long): Flow<List<Emotion>>{
         return dao.getBetweenEmotion(date1, date2)
     }
+
+    fun getAllEmotion(): Flow<List<Emotion>> = dao.getAllEmotion()
 }

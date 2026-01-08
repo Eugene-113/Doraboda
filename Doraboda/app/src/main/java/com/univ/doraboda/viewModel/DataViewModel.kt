@@ -5,13 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.univ.doraboda.model.Emotion
 import com.univ.doraboda.repository.EmotionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -40,8 +38,7 @@ class DataViewModel @Inject constructor(private val emotionRepository: EmotionRe
         }
     }.catch {
         emit(reduce(DataResult.Error))
-    }.flowOn(Dispatchers.IO)
-        .stateIn(scope = viewModelScope,
+    }.stateIn(scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = DataState()
         )
