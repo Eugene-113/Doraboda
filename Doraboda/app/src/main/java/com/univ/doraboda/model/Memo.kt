@@ -9,3 +9,6 @@ data class Memo (
     @PrimaryKey var ID: Date,
     var memo: String
 )
+
+fun Memo.toJMemo() = JMemo(ID.time, memo)
+fun List<Memo>.toJMemoList() = map{ it.toJMemo() }

@@ -3,6 +3,7 @@ package com.univ.doraboda.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -59,10 +60,6 @@ class ReadModeActivity : AppCompatActivity() {
     val viewModel: ReadModeViewModel by viewModels()
     var isMemoExist = false
     var nonSlashedDate: String? = null
-    var memoFlag = true
-    var emotionFlag = true
-    var firstMemoValue = false
-    var firstEmotionValue: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,18 +110,15 @@ class ReadModeActivity : AppCompatActivity() {
                             setImage(it.emotion)
 
                             isMemoExist = it.memo != null
-
-                            if(memoFlag){
-                                firstMemoValue = isMemoExist
-                                memoFlag = false
-                            }
-                            if(emotionFlag){
-                                firstEmotionValue = thisEmo
-                                emotionFlag = false
-                            }
-                            resIntent.putExtra("DayAndExist", "${nonSlashedDate}/${firstMemoValue != isMemoExist}/${firstEmotionValue != thisEmo}")
                         }
                     }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.errorEvents.collect{
+                    Toast.makeText(this@ReadModeActivity, it, Toast.LENGTH_SHORT).show()
                 }
             }
         }

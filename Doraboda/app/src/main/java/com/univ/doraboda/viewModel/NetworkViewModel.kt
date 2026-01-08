@@ -14,7 +14,7 @@ import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
-class NetworkViewModel @Inject constructor(val networkRepository: RetrofitRepository): ViewModel() {
+class NetworkViewModel @Inject constructor(private val networkRepository: RetrofitRepository): ViewModel() {
     data class NetworkState(val isLoading: Boolean = true, val quote: String = "", val author: String = "", val isError: Boolean = false)
     sealed class NetworkIntent {
         object GetQuote: NetworkIntent()

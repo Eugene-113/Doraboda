@@ -9,3 +9,6 @@ data class Emotion (
     @PrimaryKey var ID: Date,
     var emotion: String
 )
+
+fun Emotion.toJEmotion() = JEmotion(ID.time, emotion)
+fun List<Emotion>.toJEmotionList() = map{ it.toJEmotion() }

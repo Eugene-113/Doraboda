@@ -19,8 +19,12 @@ abstract class BaseBottomSheetFragment<T: ViewDataBinding>: BottomSheetDialogFra
         savedInstanceState: Bundle?
     ): View? {
         _binding = DataBindingUtil.inflate(inflater, layoutId(), container, false)
-        layoutInit()
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        layoutInit()
     }
 
     override fun onDestroyView() {

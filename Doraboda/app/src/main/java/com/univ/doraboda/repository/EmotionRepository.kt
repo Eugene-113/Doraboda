@@ -2,6 +2,7 @@ package com.univ.doraboda.repository
 
 import com.univ.doraboda.dao.EmotionDao
 import com.univ.doraboda.model.Emotion
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 import javax.inject.Inject
 
@@ -19,11 +20,15 @@ class EmotionRepository @Inject constructor(private val dao: EmotionDao){
         dao.deleteEmotion(date)
     }
 
-    fun getEmotion(id: Date): Emotion {
+    fun deleteAllEmotion() = dao.deleteAllEmotion()
+
+    fun getEmotion(id: Date): Flow<Emotion?> {
         return dao.getEmotion(id)
     }
 
-    fun getBetween(date1: Long, date2: Long): List<Emotion>{
+    fun getBetween(date1: Long, date2: Long): Flow<List<Emotion>>{
         return dao.getBetweenEmotion(date1, date2)
     }
+
+    fun getAllEmotion(): Flow<List<Emotion>> = dao.getAllEmotion()
 }

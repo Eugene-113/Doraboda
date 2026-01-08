@@ -33,6 +33,14 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 />
+            <ImageView
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/icon_star"
+                app:layout_constraintStart_toEndOf="@id/settingsTextView"
+                app:layout_constraintTop_toTopOf="parent"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
     <ScrollView
@@ -49,14 +57,186 @@
             <TextView
                 android:id="@+id/settingsTextView1"
                 android:text="@string/settings1"
+                android:textSize="20sp"
+                android:layout_margin="20dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+            <LinearLayout
+                android:id="@+id/settingsLayout1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsTextView1"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                >
+            <TextView
+                android:id="@+id/settingsTextView2"
+                android:text="@string/settings2"
                 android:textSize="25sp"
-                android:layout_margin="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                />
+            </LinearLayout>
+            <View
+                android:id="@+id/settingsView1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/lightGrey"
+                app:layout_constraintTop_toBottomOf="@id/settingsLayout1"
+                />
+            <TextView
+                android:id="@+id/settingsTextView3"
+                android:text="@string/settings4"
+                android:textSize="20sp"
+                android:layout_margin="20dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsView1"
+                />
+            <TextView
+                android:id="@+id/settingsTextView4"
+                android:text="@string/settings3"
+                android:textSize="25sp"
+                android:layout_margin="20dp"
                 android:textAlignment="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsTextView3"
+                />
+            <Switch
+                android:id="@+id/settingsSwitch"
+                android:layout_width="60dp"
+                android:layout_height="35dp"
+                android:layout_marginEnd="20dp"
+                android:checked="true"
+                android:track="@drawable/selector_switch"
+                android:thumb="@drawable/graphic_switch_circle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/settingsTextView4"
+                app:layout_constraintBottom_toBottomOf="@id/settingsTextView4"
+                />
+            <View
+                android:id="@+id/settingsView2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/lightGrey"
+                app:layout_constraintTop_toBottomOf="@id/settingsTextView4"
+                />
+            <TextView
+                android:id="@+id/settingsTextView5"
+                android:text="@string/settings5"
+                android:textSize="20sp"
+                android:layout_margin="20dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsView2"
+                />
+            <LinearLayout
+                android:id="@+id/settingsLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsTextView5"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                >
+            <TextView
+                android:id="@+id/settingsTextView6"
+                android:text="@string/settings6"
+                android:textSize="25sp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/settingsLayout3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsLayout2"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                >
+            <TextView
+                android:id="@+id/settingsTextView7"
+                android:text="@string/settings7"
+                android:textSize="25sp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                />
+            </LinearLayout>
+            <View
+                android:id="@+id/settingsView3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/lightGrey"
+                app:layout_constraintTop_toBottomOf="@id/settingsLayout3"
+                />
+            <TextView
+                android:id="@+id/settingsTextView8"
+                android:text="@string/settings8"
+                android:textSize="20sp"
+                android:layout_margin="20dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsView3"
+                />
+            <TextView
+                android:id="@+id/settingsTextView9"
+                android:text="@string/settings9"
+                android:textSize="25sp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="20dp"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/settingsTextView8"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

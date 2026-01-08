@@ -10,5 +10,18 @@
     <string name="data2">이달의 감정 데이터</string>
     <string name="readModeText">오늘의 한마디</string>
     <string name="settings">설정</string>
-    <string name="settings1">메모설정</string>
+    <string name="settings1">달력 설정</string>
+    <string name="settings2">라벨 색깔</string>
+    <string name="settings3">명언 기능</string>
+    <string name="settings4">사운드 화면 설정</string>
+    <string name="settings5">데이터</string>
+    <string name="settings6">파일로 백업</string>
+    <string name="settings7">파일 데이터 불러오기</string>
+    <string name="settings8">기타</string>
+    <string name="settings9">github</string>
+    <string name="dialog_ok">확인</string>
+    <string name="dialog_cancel">취소</string>
+    <string name="dialog_title">년월 설정</string>
+    <string name="dialog_quest">백업 데이터를 불러오면 현재 기기에 저장된 모든 데이터는 사라집니다. 계속하시겠습니까?</string>
+    <string name="dialog_quest2">오늘의 한마디를 삭제하시겠습니까?</string>
 </resources>
