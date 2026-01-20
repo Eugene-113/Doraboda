@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:name=".DorabodaApplication"
+        android:name=".app.DorabodaApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,19 +19,19 @@
         android:theme="@style/Theme.Doraboda"
         tools:targetApi="34">
         <activity
-            android:name=".ui.AddEmotionActivity"
+            android:name=".calendar.ui.AddEmotionActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.WriteModeActivity"
+            android:name=".calendar.ui.WriteModeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.ReadModeActivity"
+            android:name=".calendar.ui.ReadModeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.SettingsActivity"
+            android:name=".settings.ui.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".app.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +40,7 @@
         </activity>
 
         <service
-            android:name=".Service.SoundService"
+            android:name=".sound.service.SoundService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="true">
             <intent-filter>

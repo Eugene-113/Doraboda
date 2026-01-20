@@ -1,0 +1,50 @@
+package com.univ.doraboda.calendar.ui
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.univ.doraboda.calendar.model.CalendarItem
+import com.univ.doraboda.databinding.ItemCalendarBinding
+import java.util.Calendar
+
+class CalendarAdapter(val context: Context, val calendar: Calendar) : ListAdapter<CalendarItem, CalendarAdapter.DayViewHolder>(
+    CalendarDiffCallback
+) {
+
+    object CalendarDiffCallback : DiffUtil.ItemCallback<CalendarItem>(){
+        override fun areItemsTheSame(oldItem: CalendarItem, newItem: CalendarItem): Boolean {
+            return oldItem.year == newItem.year && oldItem.month == newItem.month
+        }
+
+        @SuppressLint("DiffUtilEquals")
+        override fun areContentsTheSame(oldItem: CalendarItem, newItem: CalendarItem): Boolean {
+            return oldItem.memoListMap == newItem.memoListMap && oldItem.emotionListMap == newItem.emotionListMap && oldItem.labelColor == newItem.labelColor
+        }
+    }
+
+    class DayViewHolder(val binding: ItemCalendarBinding, val context: Context, val calendar: Calendar) : RecyclerView.ViewHolder(binding.root){
+        fun bind(item: CalendarItem){
+            val dayAdapter = DayAdapter(context, "${item.year}/${item.month}/", item.memoListMap, item.emotionListMap, calendar, item.labelColor)
+            binding.dayRecyclerView.apply {
+                layoutManager = GridLayoutManager(context, 7)
+                adapter = dayAdapter
+            }
+            dayAdapter.submitList(item.days)
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
+        val binding = ItemCalendarBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DayViewHolder(binding, context, calendar)
+    }
+
+    override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
+        val item = getItem(position)
+        holder.bind(item)
+    }
+}

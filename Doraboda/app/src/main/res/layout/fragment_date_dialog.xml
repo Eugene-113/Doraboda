@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/graphic_border"
-    tools:context=".ui.DateDialogFragment"
+    tools:context=".app.dialog.DateDialogFragment"
     >
     <LinearLayout
         android:id="@+id/calendarDatePickerLinearLayout1"

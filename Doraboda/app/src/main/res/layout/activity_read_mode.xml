@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.ReadModeActivity">
+    tools:context=".calendar.ui.ReadModeActivity">
     <TextView
         android:id="@+id/readModeTextView1"
         android:textSize="30sp"

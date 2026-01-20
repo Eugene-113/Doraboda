@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/graphic_border"
-    tools:context=".ui.FileQuestDialogFragment"
+    tools:context=".app.dialog.FileQuestDialogFragment"
     >
     <TextView
         android:id="@+id/fileQuestTextView"

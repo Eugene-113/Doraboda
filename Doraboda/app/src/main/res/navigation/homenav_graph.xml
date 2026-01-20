@@ -6,17 +6,17 @@
     >
     <fragment
         android:id="@+id/calendarItem"
-        android:name="com.univ.doraboda.ui.CalendarFragment"
+        android:name="com.univ.doraboda.calendar.ui.CalendarFragment"
         android:label=""
         />
     <fragment
         android:id="@+id/soundItem"
-        android:name="com.univ.doraboda.ui.SoundFragment"
+        android:name="com.univ.doraboda.sound.ui.SoundFragment"
         android:label=""
         />
     <fragment
         android:id="@+id/dataItem"
-        android:name="com.univ.doraboda.ui.DataFragment"
+        android:name="com.univ.doraboda.graph.ui.DataFragment"
         android:label=""
         />
 </navigation>

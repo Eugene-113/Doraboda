@@ -26,6 +26,7 @@ build/
 local.properties
 
 # Log/OS Files
+
 *.log
 
 # Android Studio generated files and folders
@@ -202,5 +203,11 @@ fabric.properties
 
 #.kotlin
 .kotlin/
+
+#release
+/app/release/
+
+#apk
+*.apk
 
 # End of https://www.toptal.com/developers/gitignore/api/androidstudio,android,kotlin

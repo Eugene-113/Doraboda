@@ -1,0 +1,34 @@
+package com.univ.doraboda.calendar.repository
+
+import com.univ.doraboda.calendar.db.dao.EmotionDao
+import com.univ.doraboda.calendar.db.model.Emotion
+import kotlinx.coroutines.flow.Flow
+import java.util.Date
+import javax.inject.Inject
+
+class EmotionRepository @Inject constructor(private val dao: EmotionDao){
+
+    fun insertEmotion(emotion: Emotion){
+        dao.insertEmotion(emotion)
+    }
+
+    fun updateEmotion(id: Date, emotion: String){
+        dao.updateEmotion(id, emotion)
+    }
+
+    fun deleteEmotion(date: Date){
+        dao.deleteEmotion(date)
+    }
+
+    fun deleteAllEmotion() = dao.deleteAllEmotion()
+
+    fun getEmotion(id: Date): Flow<Emotion?> {
+        return dao.getEmotion(id)
+    }
+
+    fun getBetween(date1: Long, date2: Long): Flow<List<Emotion>>{
+        return dao.getBetweenEmotion(date1, date2)
+    }
+
+    fun getAllEmotion(): Flow<List<Emotion>> = dao.getAllEmotion()
+}
