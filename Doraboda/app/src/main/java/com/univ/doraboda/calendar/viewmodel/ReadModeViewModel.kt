@@ -38,18 +38,18 @@ class ReadModeViewModel @Inject constructor(private val memoRepository: MemoRepo
         data class Error(val ex: String): ReadModeResult()
     }
     private val dateState = MutableStateFlow(DateState())
-    val state = dateState.filter {
+    val state: StateFlow<ReadModeState> = dateState.filter {
         it.date != null
     }.flatMapLatest { (date) ->
         combine(memoRepository.getMemo(date!!), emotionRepository.getEmotion(date)){ memo, emotion ->
             ReadModeResult.MemoAndEmotionLoaded(memo?.memo, emotion?.emotion)
         }.map { result ->
-            reduce(result)
+            reduce(result, state.value)
         }.onStart {
-            emit(reduce(ReadModeResult.Loading))
+            emit(reduce(ReadModeResult.Loading, state.value))
         }
     }.catch { e ->
-        emit(reduce(ReadModeResult.Error(e.message.toString())))
+        emit(reduce(ReadModeResult.Error(e.message.toString()), state.value))
     }.stateIn(scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = ReadModeState()
@@ -58,17 +58,17 @@ class ReadModeViewModel @Inject constructor(private val memoRepository: MemoRepo
     private val _errorEvents = MutableSharedFlow<String>()
     val errorEvents: SharedFlow<String> = _errorEvents.asSharedFlow()
 
-    private fun reduce(result: ReadModeResult): ReadModeState{ //상태 변화
+    private fun reduce(result: ReadModeResult, thisState: ReadModeState): ReadModeState{ //상태 변화
         return when(result){
-            is ReadModeResult.Loading -> state.value.copy(isLoading = true, isError = false)
-            is ReadModeResult.MemoAndEmotionLoaded -> state.value.copy(isLoading = false, result.memo, result.emotion, isError = false)
-            is ReadModeResult.MemoInserted -> state.value.copy(isLoading = false, memo = result.memo, isError = false)
-            is ReadModeResult.EmotionInserted -> state.value.copy(isLoading = false, emotion = result.emotion, isError = false)
-            is ReadModeResult.MemoUpdated -> state.value.copy(isLoading = false, memo = result.memo, isError = false)
-            is ReadModeResult.EmotionUpdated -> state.value.copy(isLoading = false, emotion = result.emotion, isError = false)
-            is ReadModeResult.MemoDeleted -> state.value.copy(isLoading = false, memo = null, isError = false)
-            is ReadModeResult.EmotionDeleted -> state.value.copy(isLoading = false, emotion = null, isError = false)
-            is ReadModeResult.Error -> state.value.copy(isLoading = false, isError = true)
+            is ReadModeResult.Loading -> thisState.copy(isLoading = true, isError = false)
+            is ReadModeResult.MemoAndEmotionLoaded -> thisState.copy(isLoading = false, result.memo, result.emotion, isError = false)
+            is ReadModeResult.MemoInserted -> thisState.copy(isLoading = false, memo = result.memo, isError = false)
+            is ReadModeResult.EmotionInserted -> thisState.copy(isLoading = false, emotion = result.emotion, isError = false)
+            is ReadModeResult.MemoUpdated -> thisState.copy(isLoading = false, memo = result.memo, isError = false)
+            is ReadModeResult.EmotionUpdated -> thisState.copy(isLoading = false, emotion = result.emotion, isError = false)
+            is ReadModeResult.MemoDeleted -> thisState.copy(isLoading = false, memo = null, isError = false)
+            is ReadModeResult.EmotionDeleted -> thisState.copy(isLoading = false, emotion = null, isError = false)
+            is ReadModeResult.Error -> thisState.copy(isLoading = false, isError = true)
         }
     }
 

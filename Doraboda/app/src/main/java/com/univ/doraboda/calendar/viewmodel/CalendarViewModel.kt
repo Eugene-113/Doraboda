@@ -42,22 +42,22 @@ class CalendarViewModel @Inject constructor(private val memoRepository: MemoRepo
         ){ memos, emotions, colorIndex ->
             CalendarResult.UserDataLoaded(memos, emotions, colorIndex)
         }.map { result ->
-            reduce(result)
+            reduce(result, state.value)
         }.onStart {
-            emit(reduce(CalendarResult.Loading))
+            emit(reduce(CalendarResult.Loading, state.value))
         }
     }.catch {
-        emit(reduce(CalendarResult.Error))
+        emit(reduce(CalendarResult.Error, state.value))
     }.stateIn(scope = viewModelScope,
         started = SharingStarted.Lazily,
         initialValue = CalendarState()
     )
 
-    private fun reduce(result: CalendarResult): CalendarState{
+    private fun reduce(result: CalendarResult, thisState: CalendarState): CalendarState{
         return when(result){
-            is CalendarResult.Loading -> state.value.copy(isLoading = true, isError = false)
-            is CalendarResult.UserDataLoaded -> state.value.copy(isLoading = false, memos = result.memos, emotions = result.emotions, labelColorIndex = result.labelColorIndex , isError = false, updateID = state.value.updateID + 1)
-            is CalendarResult.Error -> state.value.copy(isLoading = false, isError = true)
+            is CalendarResult.Loading -> thisState.copy(isLoading = true, isError = false)
+            is CalendarResult.UserDataLoaded -> thisState.copy(isLoading = false, memos = result.memos, emotions = result.emotions, labelColorIndex = result.labelColorIndex , isError = false, updateID = state.value.updateID + 1)
+            is CalendarResult.Error -> thisState.copy(isLoading = false, isError = true)
         }
     }
 

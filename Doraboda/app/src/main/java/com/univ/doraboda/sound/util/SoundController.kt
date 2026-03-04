@@ -11,7 +11,7 @@ import com.univ.doraboda.sound.service.SoundService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +26,6 @@ class SoundController @Inject constructor(@ApplicationContext private val contex
     val state: StateFlow<Int> = _state.asStateFlow()
     private var controller: MediaController? = null
     private var controllerFuture: ListenableFuture<MediaController>? = null
-    private val scope = CoroutineScope(Dispatchers.Main.immediate)
 
     suspend fun connect(){ //서비스와 컨트롤러 연결
         val sessionToken = SessionToken(
@@ -58,12 +57,10 @@ class SoundController @Inject constructor(@ApplicationContext private val contex
         controller!!.prepare()
     }
 
-    fun seekAndPlay(position: Int){
-        scope.launch {
-            if(controller == null) connect() //컨트롤러 연결이 끊어졌는데 컨트롤러는 있는 경우 / 연결도 없고 컨트롤러도 없는 경우
-            controller!!.seekTo(position, 0)
-            if(!controller!!.isPlaying) controller!!.play()
-        }
+    suspend fun seekAndPlay(position: Int){
+        if(controller == null) connect() //컨트롤러 연결이 끊어졌는데 컨트롤러는 있는 경우 / 연결도 없고 컨트롤러도 없는 경우
+        controller!!.seekTo(position, 0)
+        if(!controller!!.isPlaying) controller!!.play()
     }
 
     fun releaseIfConnected(){
@@ -71,7 +68,6 @@ class SoundController @Inject constructor(@ApplicationContext private val contex
             controller = null
             MediaController.releaseFuture(controllerFuture!!)
             controllerFuture = null
-            scope.cancel()
         }
     }
 }

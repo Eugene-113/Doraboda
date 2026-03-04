@@ -50,12 +50,12 @@ class SettingsViewModel @Inject constructor(private val dataStoreRepository: Dat
     private val _effect = MutableSharedFlow<String>()
     val errorEvents: SharedFlow<String> = _effect.asSharedFlow()
 
-    private fun reduce(result: SettingsResult): SettingsState{
+    private fun reduce(result: SettingsResult, thisState: SettingsState): SettingsState{
         return when(result){
-            is SettingsResult.SettingsDataLoaded -> _state.value.copy(labelType = result.labelType, isQuoteModeOn = result.isQuoteModeOn, memos = result.memos, emotions = result.emotions, loadNew = false)
-            is SettingsResult.NewSettingsDataLoaded -> _state.value.copy(labelType = result.labelType, isQuoteModeOn = result.isQuoteModeOn, memos = result.memos, emotions = result.emotions, loadNew = true)
-            is SettingsResult.SetQuoteMode -> _state.value.copy(isQuoteModeOn = result.quoteMode, loadNew = false)
-            is SettingsResult.SetLabelIndex -> _state.value.copy(labelType = result.labelIndex, loadNew = false)
+            is SettingsResult.SettingsDataLoaded -> thisState.copy(labelType = result.labelType, isQuoteModeOn = result.isQuoteModeOn, memos = result.memos, emotions = result.emotions, loadNew = false)
+            is SettingsResult.NewSettingsDataLoaded -> thisState.copy(labelType = result.labelType, isQuoteModeOn = result.isQuoteModeOn, memos = result.memos, emotions = result.emotions, loadNew = true)
+            is SettingsResult.SetQuoteMode -> thisState.copy(isQuoteModeOn = result.quoteMode, loadNew = false)
+            is SettingsResult.SetLabelIndex -> thisState.copy(labelType = result.labelIndex, loadNew = false)
         }
     }
 
@@ -115,7 +115,7 @@ class SettingsViewModel @Inject constructor(private val dataStoreRepository: Dat
                 dataStoreRepository.setQuoteSetting(doraData.quoteMode)
                 dataStoreRepository.setLabelSetting(doraData.labelColor)
 
-                _state.value = reduce(SettingsResult.NewSettingsDataLoaded(labelType = doraData.labelColor, isQuoteModeOn = doraData.quoteMode, memos = memos, emotions = emotions))
+                _state.value = reduce(SettingsResult.NewSettingsDataLoaded(labelType = doraData.labelColor, isQuoteModeOn = doraData.quoteMode, memos = memos, emotions = emotions), _state.value)
                 _effect.emit("데이터를 가져오는 데에 성공했습니다.")
             }catch (e: Exception){
                 _effect.emit(e.message.toString())
@@ -130,7 +130,7 @@ class SettingsViewModel @Inject constructor(private val dataStoreRepository: Dat
                 val quoteMode = dataStoreRepository.getQuoteSetting().first()
                 val memos = memoRepository.getAllMemo().first()
                 val emotions = emotionRepository.getAllEmotion().first()
-                _state.value = reduce(SettingsResult.SettingsDataLoaded(labelType = labelIndex, isQuoteModeOn = quoteMode, memos = memos, emotions = emotions))
+                _state.value = reduce(SettingsResult.SettingsDataLoaded(labelType = labelIndex, isQuoteModeOn = quoteMode, memos = memos, emotions = emotions), _state.value)
             } catch (e: Exception){
                 _effect.emit("${e.message}")
             }
@@ -151,7 +151,7 @@ class SettingsViewModel @Inject constructor(private val dataStoreRepository: Dat
         viewModelScope.launch(Dispatchers.IO){
             try {
                 dataStoreRepository.setLabelSetting(labelType)
-                _state.value = reduce(SettingsResult.SetLabelIndex(labelType))
+                _state.value = reduce(SettingsResult.SetLabelIndex(labelType), _state.value)
             } catch (e: Exception){
                 _effect.emit(e.message.toString())
             }
@@ -162,7 +162,7 @@ class SettingsViewModel @Inject constructor(private val dataStoreRepository: Dat
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 dataStoreRepository.setQuoteSetting(isQuoteModeOn)
-                _state.value = reduce(SettingsResult.SetQuoteMode(isQuoteModeOn))
+                _state.value = reduce(SettingsResult.SetQuoteMode(isQuoteModeOn), _state.value)
             } catch (e: Exception){
                 _effect.emit(e.message.toString())
             }

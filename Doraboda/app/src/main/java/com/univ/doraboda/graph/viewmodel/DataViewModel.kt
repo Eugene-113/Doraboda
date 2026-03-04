@@ -7,6 +7,7 @@ import com.univ.doraboda.calendar.repository.EmotionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -28,26 +29,26 @@ class DataViewModel @Inject constructor(private val emotionRepository: EmotionRe
         data class EmotionsLoaded(val emotions: List<Emotion>): DataResult()
     }
     private val dateState = MutableStateFlow(DateState())
-    val state = dateState.filter {
+    val state: StateFlow<DataState> = dateState.filter {
         it.startDate != (-1).toLong() && it.endDate != (-1).toLong()
     }.flatMapLatest { (d1, d2) ->
         emotionRepository.getBetween(d1, d2).map { emotions ->
-            reduce(DataResult.EmotionsLoaded(emotions))
+            reduce(DataResult.EmotionsLoaded(emotions), state.value)
         }.onStart {
-            emit(reduce(DataResult.Loading))
+            emit(reduce(DataResult.Loading, state.value))
         }
     }.catch {
-        emit(reduce(DataResult.Error))
+        emit(reduce(DataResult.Error, state.value))
     }.stateIn(scope = viewModelScope,
             started = SharingStarted.Companion.Lazily,
             initialValue = DataState()
         )
 
-    private fun reduce(result: DataResult): DataState{
+    private fun reduce(result: DataResult, thisState: DataState): DataState{
         return when(result){
-            is DataResult.EmotionsLoaded -> state.value.copy(isError = false, emotions = result.emotions, isLoading = false)
-            is DataResult.Error -> state.value.copy(isError = true, isLoading = false)
-            is DataResult.Loading -> state.value.copy(isLoading = true)
+            is DataResult.EmotionsLoaded -> thisState.copy(isError = false, emotions = result.emotions, isLoading = false)
+            is DataResult.Error -> thisState.copy(isError = true, isLoading = false)
+            is DataResult.Loading -> thisState.copy(isLoading = true)
         }
     }
 

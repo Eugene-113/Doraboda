@@ -11,6 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,12 +23,14 @@ class SoundService: MediaSessionService() {
     var isReleased = false
     @Inject
     lateinit var mediaSession: MediaSession
-    var scope: Job? = null
+    val rJob = Job()
+    var cancellableJob: Job? = null
+    val scope = CoroutineScope(Dispatchers.Default + rJob)
 
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        Timber.Forest.d("onCreate Service")
+        Timber.d("onCreate Service")
 
         mediaSession!!.player.setMediaItems(musics)
         mediaSession!!.player.addListener(
@@ -35,12 +38,12 @@ class SoundService: MediaSessionService() {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     super.onIsPlayingChanged(isPlaying)
                     if (isPlaying) {
-                        scope?.cancel()
+                        cancellableJob?.cancel()
                     }
                     else {
-                        scope = CoroutineScope(Dispatchers.Default).launch {
+                        cancellableJob = scope.launch {
                             delay(1000 * 8)
-                            Timber.Forest.d("timer end")
+                            Timber.d("timer end")
                             withContext(Dispatchers.Main) {
                                 releaseAll()
                                 stopSelf()
@@ -61,8 +64,9 @@ class SoundService: MediaSessionService() {
     }
 
     override fun onDestroy() {
-        Timber.Forest.d("서비스 작동중지")
+        Timber.d("서비스 작동중지")
         if(!isReleased) releaseAll()
+        scope.cancel()
         super.onDestroy()
     }
 

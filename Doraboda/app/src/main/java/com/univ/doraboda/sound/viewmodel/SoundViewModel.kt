@@ -8,6 +8,7 @@ import com.univ.doraboda.settings.repository.DataStoreRepository
 import com.univ.doraboda.sound.repository.RetrofitRepository
 import com.univ.doraboda.sound.util.SoundController
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -44,17 +45,17 @@ class SoundViewModel @Inject constructor(private val controller: SoundController
     init {
         viewModelScope.launch {
             controller.state.collect {
-                reduce(SoundResult.PlayStateChanged(it))
+                reduce(SoundResult.PlayStateChanged(it), _state.value)
             }
         }
     }
 
-    private fun reduce(result: SoundResult): SoundState{
+    private fun reduce(result: SoundResult, thisState: SoundState): SoundState{
         return when(result){
-            is SoundResult.PlayStateChanged -> _state.value.copy(playState = result.playState)
-            is SoundResult.NetworkError -> _state.value.copy(isNetworkError = true, isLoading = false)
-            is SoundResult.Loading -> _state.value.copy(isLoading = true, isNetworkError = false)
-            is SoundResult.QuoteLoaded -> _state.value.copy(quote = result.quote, author = result.author, isLoading = false, isNetworkError = false)
+            is SoundResult.PlayStateChanged -> thisState.copy(playState = result.playState)
+            is SoundResult.NetworkError -> thisState.copy(isNetworkError = true, isLoading = false)
+            is SoundResult.Loading -> thisState.copy(isLoading = true, isNetworkError = false)
+            is SoundResult.QuoteLoaded -> thisState.copy(quote = result.quote, author = result.author, isLoading = false, isNetworkError = false)
         }
     }
 
@@ -67,7 +68,9 @@ class SoundViewModel @Inject constructor(private val controller: SoundController
     }
 
     private fun seekAndPlay(position: Int){
-        controller.seekAndPlay(position)
+        viewModelScope.launch{
+            controller.seekAndPlay(position)
+        }
     }
 
     private fun releaseIfConnected(){
@@ -75,9 +78,9 @@ class SoundViewModel @Inject constructor(private val controller: SoundController
     }
 
     private fun getQuote(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if(getQuoteSetting()){
-                _state.value = reduce(SoundResult.Loading)
+                _state.value = reduce(SoundResult.Loading, _state.value)
                 val response = networkRepository.getQuote()
                 response.enqueue(object : Callback<List<QuoteData>> {
                     override fun onResponse(
@@ -86,12 +89,12 @@ class SoundViewModel @Inject constructor(private val controller: SoundController
                     ) {
                         if(response.isSuccessful() && response.body() != null){
                             val quoteData = response.body()!!.get(0)
-                            _state.value = reduce(SoundResult.QuoteLoaded(quoteData.quote, quoteData.author))
+                            _state.value = reduce(SoundResult.QuoteLoaded(quoteData.quote, quoteData.author), _state.value)
                         }
-                        else _state.value = reduce(SoundResult.NetworkError)
+                        else _state.value = reduce(SoundResult.NetworkError, _state.value)
                     }
                     override fun onFailure(call: Call<List<QuoteData>?>, t: Throwable) {
-                        _state.value = reduce(SoundResult.NetworkError)
+                        _state.value = reduce(SoundResult.NetworkError, _state.value)
                     }
                 })
             }
